@@ -7,5 +7,5 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier) {
-     Text(text = "This is home")
+     Text(text = "Say my name!")
 }
