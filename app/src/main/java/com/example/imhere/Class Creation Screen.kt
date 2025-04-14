@@ -3,6 +3,7 @@ package com.example.imhere
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.graphics.vector.ImageVector
 
+// pls work
 data class NavItem(
     val label : String,
     val icon : ImageVector
