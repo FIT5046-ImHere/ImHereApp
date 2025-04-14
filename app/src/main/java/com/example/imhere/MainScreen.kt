@@ -56,6 +56,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun ContentScreen(modifier: Modifier = Modifier, selectedNavIdx : Int) {
     when(selectedNavIdx) {
         0 -> HomePage()
-        1 -> ReportPage()
+        1 -> ReportPage(modifier = modifier)
     }
 }
