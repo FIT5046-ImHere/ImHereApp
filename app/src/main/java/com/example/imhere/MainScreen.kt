@@ -61,9 +61,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 @Composable
 fun ContentScreen(modifier: Modifier = Modifier, selectedNavIdx : Int) {
     when(selectedNavIdx) {
-        0 -> HomePage()
-        1 -> SchedulesPage()
-        2 -> ReportPage()
+        0 -> HomePage(
+        1 -> ReportPage(modifier = modifier)
     }
 }
 
