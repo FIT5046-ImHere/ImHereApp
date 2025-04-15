@@ -29,8 +29,8 @@ data class NavItem(val label: String, val icon: androidx.compose.ui.graphics.vec
 fun MainScreen(modifier: Modifier = Modifier) {
     val navItemList = listOf(
         NavItem("Home", Icons.Default.Home),
+        NavItem("Report", Icons.Default.Build),
         NavItem("Schedules", Icons.Default.DateRange),
-        NavItem("Report", Icons.Default.Build)
     )
 
     var selectedIdx by remember {
