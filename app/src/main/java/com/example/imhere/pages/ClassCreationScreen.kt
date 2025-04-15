@@ -5,9 +5,11 @@ package com.example.imhere.pages
 import android.R
 import android.R.attr.enabled
 import android.R.attr.type
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
+import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -69,6 +72,49 @@ import kotlin.math.exp
 fun ClassDetailsForm( modifier: Modifier ) {
     // a function with the ui elements for the class inputs
     // creating a column layout
+
+    // variables for date picker
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+    var fromDate by remember { mutableStateOf("") }
+    var toDate by remember { mutableStateOf("") }
+
+    val fromDatePickerDialog = DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
+        fromDate = "$d/${m + 1}/$y"
+    }, year, month, day)
+
+    val toDatePickerDialog = DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
+        toDate = "$d/${m + 1}/$y"
+    }, year, month, day)
+
+    //variables for time picker
+    var startTime by remember { mutableStateOf("") }
+    var endTime by remember { mutableStateOf("") }
+
+    val currentTime = Calendar.getInstance()
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = true,
+    )
+
+    val startTimePickerDialog = TimePickerDialog(context, { _: TimePicker, hourOfDay: Int, minute: Int ->
+        startTime = "$hourOfDay:$minute"
+    }, 0, 0, false)
+
+    val endTimePickerDialog = TimePickerDialog(context, { _: TimePicker, hourOfDay: Int, minute: Int ->
+        endTime = "$hourOfDay:$minute"
+    }, 0, 0, false)
+
+
+
+
+
     Column (
         modifier = modifier // respecting boundaries of the phone display
     ) {
@@ -117,40 +163,87 @@ fun ClassDetailsForm( modifier: Modifier ) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // timings of class
 
             Row(
                 modifier = Modifier.fillMaxWidth(1f)
-            ) { // time picker inputs
-                var startTime by remember { mutableStateOf("") }
-                OutlinedTextField(
-                    value = startTime,
-                    modifier = Modifier.fillMaxWidth(0.45f),
-                    onValueChange = { startTime = it },
-                    label = { Text("Start Time")},
-                    maxLines = 1,
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary)
-                )
+            ) { // date picker inputs
+                Box(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = fromDate,
+                        onValueChange = {},
+                        label = { Text("Start Date") },
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { toDatePickerDialog.show() }
+                    )
+                }
 
-                Spacer(modifier = Modifier.fillMaxWidth(0.1f))
+                Spacer(modifier = Modifier.fillMaxWidth(0.05f))
 
-                var endTime by remember { mutableStateOf("") }
-                OutlinedTextField(
-                    value = endTime,
-//                    modifier = Modifier.fillMaxWidth(0.45f),
-                    onValueChange = { endTime = it },
-                    label = { Text("End Time")},
-                    maxLines = 1,
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary)
-                )
+                Box(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = toDate,
+                        onValueChange = {},
+                        label = { Text("End Date") },
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { toDatePickerDialog.show() }
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(15.dp))
+
+
+            // timings of class
+            Row() {
+                Box(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = startTime,
+                        onValueChange = {},
+                        label = { Text("Start Time") },
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { startTimePickerDialog.show() }
+                    )
+                }
+
+                Spacer(modifier = Modifier.fillMaxWidth(0.05f))
+
+
+                Box(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = endTime,
+                        onValueChange = {},
+                        label = { Text("End Time") },
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { endTimePickerDialog.show() }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
 
             // teaching period
             DropDown(teachingPeriodDropdown.dropDownName, teachingPeriodDropdown.dropDownOptions)
 
-            // TODO: Submitt Button
             Spacer(modifier = Modifier.height((15.dp)))
 
             Button(
@@ -239,6 +332,3 @@ fun TextFieldInput(labelName: String) {
         modifier = Modifier.fillMaxWidth(1f)
     )
 }
-
-
-
