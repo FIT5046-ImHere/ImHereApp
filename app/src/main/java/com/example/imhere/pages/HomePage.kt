@@ -1,7 +1,5 @@
 package com.example.imhere.pages
 
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -10,10 +8,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-//Creating a data model for Class
 data class Class(
      val name: String,
      val startDateTime: LocalDateTime,
@@ -35,20 +34,41 @@ fun HomePage(modifier: Modifier = Modifier) {
           verticalArrangement = Arrangement.Top
      ) {
           Text(
-               text = "Welcome to ImHere",
+               text = "Welcome Josh!",
                style = MaterialTheme.typography.titleLarge,
+               fontWeight = FontWeight.Bold,
+               modifier = Modifier.padding(bottom = 8.dp)
+          )
+          Text(
+               text = "Here is your upcoming classes:",
+               style = MaterialTheme.typography.titleMedium,
                fontWeight = FontWeight.Bold,
                modifier = Modifier.padding(bottom = 16.dp)
           )
-          // Sample class for prototype
-          val sampleClass = Class(
-               name = "Mathematics 101",
-               startDateTime = LocalDateTime.now().plusHours(2),
-               endDateTime = LocalDateTime.now().plusHours(3),
-               recurrence = Recurrence.WEEKLY,
-               location = "Room A-101"
+          // Sample classes for prototype
+          val classes = listOf(
+               Class(
+                    name = "Mathematics 101",
+                    startDateTime = LocalDateTime.now().plusHours(2),
+                    endDateTime = LocalDateTime.now().plusHours(3),
+                    recurrence = Recurrence.WEEKLY,
+                    location = "Room A-101"
+               ),
+               Class(
+                    name = "Physics 202",
+                    startDateTime = LocalDateTime.now().plusDays(1).plusHours(1),
+                    endDateTime = LocalDateTime.now().plusDays(1).plusHours(2),
+                    recurrence = Recurrence.DAILY,
+                    location = "Lab B-204"
+               )
           )
-          NextClassCard(classItem = sampleClass)
+          LazyColumn(
+               verticalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
+               items(classes) { classItem ->
+                    NextClassCard(classItem = classItem)
+               }
+          }
      }
 }
 
@@ -57,7 +77,7 @@ fun NextClassCard(classItem: Class, modifier: Modifier = Modifier) {
      Card(
           modifier = modifier
                .fillMaxWidth()
-               .padding(vertical = 8.dp),
+               .padding(vertical = 4.dp),
           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
      ) {
