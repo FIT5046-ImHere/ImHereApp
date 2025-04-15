@@ -178,7 +178,7 @@ fun ClassDetailsForm( modifier: Modifier ) {
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .clickable { toDatePickerDialog.show() }
+                            .clickable { fromDatePickerDialog.show() }
                     )
                 }
 
