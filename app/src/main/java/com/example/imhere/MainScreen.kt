@@ -7,11 +7,6 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,40 +24,44 @@ data class NavItem(val label: String, val icon: androidx.compose.ui.graphics.vec
 fun MainScreen(modifier: Modifier = Modifier) {
     val navItemList = listOf(
         NavItem("Home", Icons.Default.Home),
-        NavItem("Report", Icons.Default.Build),
         NavItem("Schedules", Icons.Default.DateRange),
+        NavItem("Report", Icons.Default.Build),
+        NavItem("Profile", Icons.Default.Person)
     )
 
-    var selectedIdx by remember {
-        mutableIntStateOf(0)
-    }
+    var selectedIdx by remember { mutableIntStateOf(0) }
 
-    Scaffold(modifier = Modifier.fillMaxSize(),
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
         bottomBar = {
             NavigationBar {
-                navItemList.forEachIndexed{index, navItem ->  NavigationBarItem(
-                    selected = selectedIdx == index,
-                    onClick = {
-                        selectedIdx = index
-                    },
-                    icon = {
-                        Icon(imageVector = navItem.icon, contentDescription = navItem.label)
-                    },
-                    label = {
-                        Text(text = navItem.label)
-                    }
-                ) }
+                navItemList.forEachIndexed { index, navItem ->
+                    NavigationBarItem(
+                        selected = selectedIdx == index,
+                        onClick = { selectedIdx = index },
+                        icon = {
+                            Icon(imageVector = navItem.icon, contentDescription = navItem.label)
+                        },
+                        label = { Text(text = navItem.label) }
+                    )
+                }
             }
-        }) { innerPadding ->
-        ContentScreen(modifier = Modifier.padding(innerPadding), selectedIdx)
+        }
+    ) { innerPadding ->
+        ContentScreen(
+            modifier = Modifier.padding(innerPadding),
+            selectedIdx = selectedIdx
+        )
     }
 }
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier, selectedNavIdx : Int) {
-    when(selectedNavIdx) {
+fun ContentScreen(modifier: Modifier = Modifier, selectedIdx: Int) {
+    when (selectedIdx) {
         0 -> HomePage()
-        1 -> ReportPage(modifier = modifier)
+        1 -> SchedulesPage(modifier)
+        2 -> ReportPage(modifier)
+        3 -> ProfilePage(modifier)
     }
 }
 
