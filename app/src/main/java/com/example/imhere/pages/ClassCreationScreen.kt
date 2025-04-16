@@ -4,6 +4,7 @@ package com.example.imhere.pages
 
 import android.R
 import android.R.attr.enabled
+import android.R.attr.required
 import android.R.attr.type
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -112,9 +113,6 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
     }, 0, 0, false)
 
 
-
-
-
     Column(modifier.padding(16.dp)) {
 //        Column(
 //            modifier = Modifier
@@ -142,7 +140,7 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
             // headline
 
             // adding a placeholder text input
-            TextFieldInput("Class Name")
+            TextFieldInput("Class Name*",)
 
             // creating vertical space
             Spacer(modifier = Modifier.height(10.dp))
@@ -168,7 +166,7 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
                     OutlinedTextField(
                         value = fromDate,
                         onValueChange = {},
-                        label = { Text("Start Date") },
+                        label = { Text("Start Date*") },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -185,7 +183,7 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
                     OutlinedTextField(
                         value = toDate,
                         onValueChange = {},
-                        label = { Text("End Date") },
+                        label = { Text("End Date*") },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -206,7 +204,7 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
                     OutlinedTextField(
                         value = startTime,
                         onValueChange = {},
-                        label = { Text("Start Time") },
+                        label = { Text("Start Time*") },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -224,7 +222,7 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
                     OutlinedTextField(
                         value = endTime,
                         onValueChange = {},
-                        label = { Text("End Time") },
+                        label = { Text("End Time*") },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -259,8 +257,8 @@ fun ClassDetailsForm( modifier: Modifier = Modifier ) {
 // dummy data for drop downs
 data class DropDownOptions (val dropDownName: String, val dropDownOptions: List<String>)
 val locationDropdown = DropDownOptions("Location", listOf("LTB", "Learning Village", "WoodSide"))
-val unitsDropdown = DropDownOptions("Unit", listOf("FIT5147", "FIT5225", "FIT5046", "FIT9132"))
-val teachingPeriodDropdown = DropDownOptions("Teaching Period", listOf("Semester 1", "Semester 2", "Winter Semester", "Summer Semester"))
+val unitsDropdown = DropDownOptions("Unit*", listOf("FIT5147", "FIT5225", "FIT5046", "FIT9132"))
+val teachingPeriodDropdown = DropDownOptions("Recurrence*", listOf("Daily", "Weekly", "Monthly"))
 
 
 @OptIn(ExperimentalMaterial3Api::class)
