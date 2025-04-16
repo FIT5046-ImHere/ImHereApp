@@ -14,12 +14,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.imhere.pages.ClassDetailsForm
 import com.example.imhere.pages.HomePage
 import com.example.imhere.pages.ReportPage
+import com.example.imhere.ui.theme.Blue1
 
-data class NavItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+data class NavItem(val label: String, val icon: ImageVector)
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -35,7 +37,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                contentColor = MaterialTheme.colorScheme.primary
+            ) {
                 navItemList.forEachIndexed { index, navItem ->
                     NavigationBarItem(
                         selected = selectedIdx == index,
@@ -43,7 +47,17 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         icon = {
                             Icon(imageVector = navItem.icon, contentDescription = navItem.label)
                         },
-                        label = { Text(text = navItem.label) }
+                        label = { Text(text = navItem.label) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = Blue1.copy(alpha = 0.2f)
+//                            selectedIconColor = TODO(),
+//                            selectedTextColor = TODO(),
+//                            unselectedIconColor = TODO(),
+//                            unselectedTextColor = TODO(),
+//                            disabledIconColor = TODO(),
+//                            disabledTextColor = TODO()
+                        )
                     )
                 }
             }
@@ -60,8 +74,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun ContentScreen(modifier: Modifier = Modifier, selectedIdx: Int) {
     when (selectedIdx) {
         0 -> HomePage()
-        1 -> ReportPage(modifier = modifier)
-        2 -> ClassDetailsForm(modifier = modifier)
+        1 -> ClassDetailsForm(modifier = modifier)
+        2 -> ReportPage(modifier = modifier)
         3 -> SchedulesPage(modifier)
     }
 }
