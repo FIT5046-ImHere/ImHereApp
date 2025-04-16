@@ -69,7 +69,7 @@ import kotlin.math.exp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClassDetailsForm( modifier: Modifier ) {
+fun ClassDetailsForm( modifier: Modifier = Modifier ) {
     // a function with the ui elements for the class inputs
     // creating a column layout
 
@@ -115,31 +115,28 @@ fun ClassDetailsForm( modifier: Modifier ) {
 
 
 
-    Column (
-        modifier = modifier // respecting boundaries of the phone display
-    ) {
-
+    Column(modifier.padding(16.dp)) {
+//        Column(
+//            modifier = Modifier
+//                // add padding
+//                .fillMaxWidth(1f)
+//                .height(150.dp)
+//                .background(color = MaterialTheme.colorScheme.primary)
+//        ) {
+//
+//
+//        }
+        Text(
+            text = "Create a Class",
+            style = MaterialTheme.typography.headlineLarge,
+//            color = Color.White,
+//            modifier = Modifier.padding(start= 30.dp, end = 30.dp, top = 30.dp, bottom = 10.dp)
+        )
         Column(
             modifier = Modifier
                 // add padding
-                .fillMaxWidth(1f)
-                .height(150.dp)
-                .background(color = MaterialTheme.colorScheme.primary)
-        ) {
-
-            Text(
-                text = "Create a Class",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.White,
-                modifier = Modifier.padding(start= 30.dp, end = 30.dp, top = 30.dp, bottom = 10.dp)
-            )
-
-        }
-        Column(
-            modifier = Modifier
-                // add padding
-                .padding(horizontal = 30.dp, vertical = 20.dp)
-                .fillMaxWidth(1f)
+//                .padding(horizontal = 30.dp, vertical = 20.dp)
+//                .fillMaxWidth(1f)
 
         ) {
             // headline
@@ -248,7 +245,7 @@ fun ClassDetailsForm( modifier: Modifier ) {
 
             Button(
                 onClick = {},
-                shape = ButtonDefaults.shape,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Submit")
             }

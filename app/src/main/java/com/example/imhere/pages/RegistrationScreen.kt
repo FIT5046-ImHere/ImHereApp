@@ -24,6 +24,7 @@ import java.util.*
 
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.graphics.Color
 
 
 @Composable
@@ -40,7 +41,6 @@ fun RegistrationScreen() {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
-    // Column layout for the Registration screen
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +57,10 @@ fun RegistrationScreen() {
                 modifier = Modifier.clickable { /* Handle back action */ }
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Register", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "Register",
+                style = MaterialTheme.typography.headlineLarge,
+            )
         }
         // Name input field
         OutlinedTextField(
@@ -115,7 +118,6 @@ fun RegistrationScreen() {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
-        // Register button
         Button(
             onClick = {
                 when {
@@ -138,7 +140,6 @@ fun RegistrationScreen() {
     }
 }
 
-// Function to check if the entered birth date is in the future
 fun isFutureDate(birthDate: String): Boolean {
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val currentDate = Calendar.getInstance().time

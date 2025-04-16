@@ -11,8 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.util.*
 
 @Preview(showBackground = true)
@@ -40,6 +42,11 @@ fun ReportPage(modifier: Modifier = Modifier) {
     val labels = listOf("Present", "Late", "Absent")
 
     Column(modifier = modifier.padding(16.dp)) {
+        Text(
+            "Your Report",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
         Text(text = "Select Report Date Range", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(16.dp))
         Row(
