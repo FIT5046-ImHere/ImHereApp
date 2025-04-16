@@ -1,5 +1,6 @@
 package com.example.imhere.pages
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -10,6 +11,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import com.example.imhere.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -27,25 +31,38 @@ enum class Recurrence {
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier) {
-     Column(
+     LazyColumn(
           modifier = modifier
                .fillMaxSize()
-               .padding(16.dp),
-          verticalArrangement = Arrangement.Top
+               .padding(horizontal = 16.dp),
+          verticalArrangement = Arrangement.Top,
+          horizontalAlignment = Alignment.CenterHorizontally
      ) {
-          Text(
-               text = "Welcome Josh!",
-               style = MaterialTheme.typography.titleLarge,
-               fontWeight = FontWeight.Bold,
-               modifier = Modifier.padding(bottom = 8.dp)
-          )
-          Text(
-               text = "Here is your upcoming classes:",
-               style = MaterialTheme.typography.titleMedium,
-               fontWeight = FontWeight.Bold,
-               modifier = Modifier.padding(bottom = 16.dp)
-          )
-          // Sample classes for prototype
+          item {
+               Image(
+                    painter = painterResource(id = R.drawable.imhere_logo),
+                    contentDescription = "I'm Here App Logo",
+                    modifier = Modifier
+                         .size(150.dp)
+                         .padding(top = 16.dp, bottom = 16.dp) // Padding around logo
+               )
+          }
+          item {
+               Text(
+                    text = "Welcome Josh!",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+               )
+          }
+          item {
+               Text(
+                    text = "Here is your upcoming classes:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+               )
+          }
           val classes = listOf(
                Class(
                     name = "Mathematics 101",
@@ -62,12 +79,8 @@ fun HomePage(modifier: Modifier = Modifier) {
                     location = "Lab B-204"
                )
           )
-          LazyColumn(
-               verticalArrangement = Arrangement.spacedBy(8.dp)
-          ) {
-               items(classes) { classItem ->
-                    NextClassCard(classItem = classItem)
-               }
+          items(classes) { classItem ->
+               NextClassCard(classItem = classItem)
           }
      }
 }
