@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.imhere.pages.ClassDetailsForm
 import com.example.imhere.pages.HomePage
 import com.example.imhere.pages.ReportPage
 
@@ -59,9 +60,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun ContentScreen(modifier: Modifier = Modifier, selectedIdx: Int) {
     when (selectedIdx) {
         0 -> HomePage()
-        1 -> SchedulesPage(modifier)
-        2 -> ReportPage(modifier)
-        3 -> ProfilePage(modifier)
+        1 -> ReportPage(modifier = modifier)
+        2 -> ClassDetailsForm(modifier = modifier)
+        3 -> SchedulesPage(modifier)
     }
 }
 
