@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.imhere.ui.theme.ImHereTheme
 
 @Composable
 fun LoginScreenUI() {
@@ -33,18 +34,18 @@ fun LoginScreenUI() {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+//        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+//            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Login",
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
@@ -90,23 +91,28 @@ fun LoginScreenUI() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Forgot Password?",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .clickable { /* no action yet */ }
-                    .padding(top = 8.dp)
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Forgot Password?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .clickable { /* no action yet */ }
+                        .padding(top = 8.dp)
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Don't have an account? Sign up",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .clickable { /* no action yet */ }
-                    .padding(top = 8.dp)
-            )
+                Text(
+                    text = "Don't have an account? Sign up",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .clickable { /* no action yet */ }
+                        .padding(top = 8.dp)
+                )
+            }
         }
     }
 }
@@ -114,5 +120,7 @@ fun LoginScreenUI() {
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreenUI()
+    ImHereTheme {
+        LoginScreenUI()
+    }
 }

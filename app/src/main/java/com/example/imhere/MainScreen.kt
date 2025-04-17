@@ -1,5 +1,6 @@
 package com.example.imhere
 
+import ProfileScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -76,7 +77,7 @@ fun ContentScreen(modifier: Modifier = Modifier, selectedIdx: Int) {
         0 -> HomePage()
         1 -> ClassDetailsForm(modifier = modifier)
         2 -> ReportPage(modifier = modifier)
-        3 -> SchedulesPage(modifier)
+        3 -> ProfileScreen(modifier)
     }
 }
 

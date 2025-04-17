@@ -25,6 +25,7 @@ import java.util.*
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.graphics.Color
+import com.example.imhere.ui.theme.ImHereTheme
 
 
 @Composable
@@ -133,7 +134,6 @@ fun RegistrationScreen() {
             },
             modifier = Modifier.fillMaxWidth()
                 .height(48.dp),
-            shape = RoundedCornerShape(12.dp),
             ) {
             Text("Register", fontSize = 18.sp)
         }
@@ -155,5 +155,7 @@ fun isFutureDate(birthDate: String): Boolean {
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegistration() {
-    RegistrationScreen()
+    ImHereTheme {
+        RegistrationScreen()
+    }
 }
