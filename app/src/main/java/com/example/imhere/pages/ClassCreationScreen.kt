@@ -241,8 +241,8 @@ fun ClassDetailsForm( modifier: Modifier ) {
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            // teaching period
-            DropDown(teachingPeriodDropdown.dropDownName, teachingPeriodDropdown.dropDownOptions)
+            // occurrence
+            DropDown(occurrenceDropdown.dropDownName, occurrenceDropdown.dropDownOptions)
 
             Spacer(modifier = Modifier.height((15.dp)))
 
@@ -263,7 +263,7 @@ fun ClassDetailsForm( modifier: Modifier ) {
 data class DropDownOptions (val dropDownName: String, val dropDownOptions: List<String>)
 val locationDropdown = DropDownOptions("Location", listOf("LTB", "Learning Village", "WoodSide"))
 val unitsDropdown = DropDownOptions("Unit", listOf("FIT5147", "FIT5225", "FIT5046", "FIT9132"))
-val teachingPeriodDropdown = DropDownOptions("Teaching Period", listOf("Semester 1", "Semester 2", "Winter Semester", "Summer Semester"))
+val occurrenceDropdown = DropDownOptions("Occurrence", listOf("Weekly", "Bi-Weekly", "Monthly"))
 
 
 @OptIn(ExperimentalMaterial3Api::class)
