@@ -112,9 +112,6 @@ fun ClassDetailsForm( modifier: Modifier ) {
     }, 0, 0, false)
 
 
-
-
-
     Column (
         modifier = modifier // respecting boundaries of the phone display
     ) {
@@ -131,7 +128,14 @@ fun ClassDetailsForm( modifier: Modifier ) {
                 text = "Create a Class",
                 style = MaterialTheme.typography.headlineLarge,
                 color = Color.White,
-                modifier = Modifier.padding(start= 30.dp, end = 30.dp, top = 30.dp, bottom = 10.dp)
+                modifier = Modifier.padding(start= 30.dp, end = 30.dp, top = 30.dp, bottom = 5.dp)
+            )
+            // required field labels
+            Text(
+                text = "All fields are Required.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White,
+                modifier = Modifier.padding(start= 30.dp, end = 30.dp, top = 5.dp, bottom = 5.dp)
             )
 
         }
