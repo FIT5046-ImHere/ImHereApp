@@ -60,8 +60,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun ContentScreen(modifier: Modifier = Modifier, selectedIdx: Int) {
     when (selectedIdx) {
         0 -> HomePage()
-        1 -> ReportPage(modifier = modifier)
-        2 -> ClassDetailsForm(modifier = modifier)
+        1 -> ClassDetailsForm(modifier = modifier)
+        2 -> ReportPage(modifier = modifier)
         3 -> SchedulesPage(modifier)
     }
 }
