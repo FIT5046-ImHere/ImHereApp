@@ -83,17 +83,40 @@ fun ClassDetailsForm( modifier: Modifier ) {
     var fromDate by remember { mutableStateOf("") }
     var toDate by remember { mutableStateOf("") }
 
+    //error
+    var dateError by remember { mutableStateOf("") }
+    var startCalendar by remember { mutableStateOf<Calendar?>(null) }
+    var endCalendar by remember { mutableStateOf<Calendar?>(null) }
+
     val fromDatePickerDialog = DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
+        startCalendar = Calendar.getInstance().apply {
+            set(y, m, d)
+        }
+
         fromDate = "$d/${m + 1}/$y"
+        dateError = "" // Clear any previous error
     }, year, month, day)
 
     val toDatePickerDialog = DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
-        toDate = "$d/${m + 1}/$y"
+        val selectedEnd = Calendar.getInstance().apply {
+            set(y, m, d)
+        }
+
+        if (startCalendar != null && selectedEnd.before(startCalendar)) {
+            dateError = "End date cannot be before start date"
+        } else {
+            endCalendar = selectedEnd
+            toDate = "$d/${m + 1}/$y"
+            dateError = ""
+        }
     }, year, month, day)
 
     //variables for time picker
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
+    var startTimeCalendar by remember { mutableStateOf<Calendar?>(null) }
+    var endTimeCalendar by remember { mutableStateOf<Calendar?>(null) }
+    var timeError by remember { mutableStateOf("") }
 
     val currentTime = Calendar.getInstance()
 
@@ -104,12 +127,28 @@ fun ClassDetailsForm( modifier: Modifier ) {
     )
 
     val startTimePickerDialog = TimePickerDialog(context, { _: TimePicker, hourOfDay: Int, minute: Int ->
-        startTime = "$hourOfDay:$minute"
-    }, 0, 0, false)
+        startTimeCalendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hourOfDay)
+            set(Calendar.MINUTE, minute)
+        }
+        startTime = "%02d:%02d".format(hourOfDay, minute)
+        timeError = "" // Clear previous error
+    }, 0, 0, true)
 
     val endTimePickerDialog = TimePickerDialog(context, { _: TimePicker, hourOfDay: Int, minute: Int ->
-        endTime = "$hourOfDay:$minute"
-    }, 0, 0, false)
+        val selectedEndTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hourOfDay)
+            set(Calendar.MINUTE, minute)
+        }
+
+        if (startTimeCalendar != null && selectedEndTime.before(startTimeCalendar)) {
+            timeError = "End time cannot be before start time"
+        } else {
+            endTimeCalendar = selectedEndTime
+            endTime = "%02d:%02d".format(hourOfDay, minute)
+            timeError = ""
+        }
+    }, 0, 0, true)
 
 
     Column (
@@ -204,6 +243,16 @@ fun ClassDetailsForm( modifier: Modifier ) {
                 }
             }
 
+            //error
+            if (dateError.isNotEmpty()) {
+                Text(
+                    text = dateError,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(15.dp))
 
 
@@ -241,6 +290,15 @@ fun ClassDetailsForm( modifier: Modifier ) {
                             .clickable { endTimePickerDialog.show() }
                     )
                 }
+            }
+            // error
+            if (timeError.isNotEmpty()) {
+                Text(
+                    text = timeError,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(15.dp))
