@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "737673555903",
+    "project_id": "imhere-4b9fc",
+    "storage_bucket": "imhere-4b9fc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737673555903:android:e63c17a256840315b8fb0a",
+        "android_client_info": {
+          "package_name": "com.example.imhere"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6sxFMYz5lO5GVjY0KMXfv4S-CvWe2vRY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
