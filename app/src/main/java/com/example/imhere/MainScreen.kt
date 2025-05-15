@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.imhere.pages.ClassDetailsForm
 import com.example.imhere.pages.HomePage
 import com.example.imhere.pages.ReportPage
+import com.example.imhere.pages.login.LoginScreen
 import com.example.imhere.ui.theme.Blue1
 
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
@@ -28,7 +29,8 @@ val navItems = listOf(
     NavItem("Home", Icons.Default.Home, "home"),
     NavItem("Schedules", Icons.Default.DateRange, "schedules"),
     NavItem("Report", Icons.Default.Build, "report"),
-    NavItem("Profile", Icons.Default.Person, "profile")
+    NavItem("Profile", Icons.Default.Person, "profile"),
+    NavItem("Login", Icons.Default.Person, "login")
 )
 
 @Composable
@@ -73,6 +75,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("schedules") { ClassDetailsForm() }
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen() }
+            composable("login") { LoginScreen() }
         }
     }
 }

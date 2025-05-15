@@ -1,4 +1,4 @@
-package com.example.imhere.common
+package com.example.imhere.common.snackbar
 
 import androidx.annotation.StringRes
 import kotlinx.coroutines.flow.MutableStateFlow

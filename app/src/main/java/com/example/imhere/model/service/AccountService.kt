@@ -1,6 +1,7 @@
 package com.example.imhere.model.service
 
 import com.example.imhere.model.User
+import com.google.firebase.auth.AuthResult
 import kotlinx.coroutines.flow.Flow
 
 interface AccountService {

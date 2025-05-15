@@ -1,4 +1,4 @@
-package com.example.imhere.common
+package com.example.imhere.common.snackbar
 
 import android.content.res.Resources
 import androidx.annotation.StringRes
