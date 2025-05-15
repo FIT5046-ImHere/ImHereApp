@@ -1,7 +1,6 @@
 package com.example.imhere
 
 import ProfileScreen
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -11,94 +10,69 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.imhere.pages.ClassDetailsForm
 import com.example.imhere.pages.HomePage
 import com.example.imhere.pages.ReportPage
 import com.example.imhere.ui.theme.Blue1
 
-data class NavItem(val label: String, val icon: ImageVector)
+data class NavItem(val label: String, val icon: ImageVector, val route: String)
+
+val navItems = listOf(
+    NavItem("Home", Icons.Default.Home, "home"),
+    NavItem("Schedules", Icons.Default.DateRange, "schedules"),
+    NavItem("Report", Icons.Default.Build, "report"),
+    NavItem("Profile", Icons.Default.Person, "profile")
+)
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-    val navItemList = listOf(
-        NavItem("Home", Icons.Default.Home),
-        NavItem("Schedules", Icons.Default.DateRange),
-        NavItem("Report", Icons.Default.Build),
-        NavItem("Profile", Icons.Default.Person)
-    )
-
-    var selectedIdx by remember { mutableIntStateOf(0) }
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         bottomBar = {
-            NavigationBar(
-                contentColor = MaterialTheme.colorScheme.primary
-            ) {
-                navItemList.forEachIndexed { index, navItem ->
+            NavigationBar {
+                navItems.forEach { item ->
                     NavigationBarItem(
-                        selected = selectedIdx == index,
-                        onClick = { selectedIdx = index },
-                        icon = {
-                            Icon(imageVector = navItem.icon, contentDescription = navItem.label)
+                        icon = { Icon(item.icon, contentDescription = item.label) },
+                        label = { Text(item.label) },
+                        selected = currentDestination?.route == item.route,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         },
-                        label = { Text(text = navItem.label) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
                             indicatorColor = Blue1.copy(alpha = 0.2f)
-//                            selectedIconColor = TODO(),
-//                            selectedTextColor = TODO(),
-//                            unselectedIconColor = TODO(),
-//                            unselectedTextColor = TODO(),
-//                            disabledIconColor = TODO(),
-//                            disabledTextColor = TODO()
                         )
                     )
                 }
             }
         }
-    ) { innerPadding ->
-        ContentScreen(
-            modifier = Modifier.padding(innerPadding),
-            selectedIdx = selectedIdx
-        )
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            composable("home") { HomePage() }
+            composable("schedules") { ClassDetailsForm() }
+            composable("report") { ReportPage() }
+            composable("profile") { ProfileScreen() }
+        }
     }
-}
-
-@Composable
-fun ContentScreen(modifier: Modifier = Modifier, selectedIdx: Int) {
-    when (selectedIdx) {
-        0 -> HomePage()
-        1 -> ClassDetailsForm(modifier = modifier)
-        2 -> ReportPage(modifier = modifier)
-        3 -> ProfileScreen(modifier)
-    }
-}
-
-@Composable
-fun SchedulesPage(modifier: Modifier = Modifier) {
-    Text(
-        text = "Schedules Page (Under Construction)",
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        style = MaterialTheme.typography.titleMedium
-    )
-}
-
-@Composable
-fun ProfilePage(modifier: Modifier = Modifier) {
-    Text(
-        text = "Profile Page (Under Construction)",
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        style = MaterialTheme.typography.titleMedium
-    )
 }
