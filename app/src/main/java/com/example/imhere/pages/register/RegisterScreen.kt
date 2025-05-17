@@ -24,11 +24,13 @@ import java.util.*
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.imhere.ui.theme.ImHereTheme
 
 
 @Composable
-fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
+fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController: NavHostController?) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -180,7 +182,9 @@ fun isFutureDate(birthDate: String): Boolean {
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegistration() {
+    val navController = rememberNavController()
+
     ImHereTheme {
-        RegisterScreen()
+        RegisterScreen(navController = navController)
     }
 }

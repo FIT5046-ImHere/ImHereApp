@@ -1,7 +1,9 @@
 package com.example.imhere.di
 
 import com.example.imhere.model.service.AccountService
+import com.example.imhere.model.service.ClassSessionService
 import com.example.imhere.model.service.impl.AccountServiceImpl
+import com.example.imhere.model.service.impl.ClassSessionServiceImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -19,4 +21,10 @@ object AppModule {
         auth: FirebaseAuth,
         firestore: FirebaseFirestore
     ): AccountService = AccountServiceImpl(auth, firestore)
+
+    @Provides
+    @Singleton
+    fun provideClassSessionService(
+        firestore: FirebaseFirestore
+    ): ClassSessionService = ClassSessionServiceImpl(firestore)
 }

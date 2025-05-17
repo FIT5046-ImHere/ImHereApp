@@ -1,5 +1,7 @@
 package com.example.imhere.pages
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,6 +15,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.imhere.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -29,8 +34,9 @@ enum class Recurrence {
      ONCE, DAILY, WEEKLY, MONTHLY
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomePage(modifier: Modifier = Modifier) {
+fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
      LazyColumn(
           modifier = modifier
                .fillMaxSize()
@@ -85,6 +91,7 @@ fun HomePage(modifier: Modifier = Modifier) {
      }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NextClassCard(classItem: Class, modifier: Modifier = Modifier) {
      Card(
@@ -136,7 +143,10 @@ fun NextClassCard(classItem: Class, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun HomePagePreview() {
+     val navController = rememberNavController()
      MaterialTheme {
-          HomePage()
+          HomePage(
+              navController = navController
+          )
      }
 }

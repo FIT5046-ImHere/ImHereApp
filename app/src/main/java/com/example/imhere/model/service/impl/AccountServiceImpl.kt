@@ -12,13 +12,38 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, private val firestore: FirebaseFirestore) : AccountService {
+class AccountServiceImpl @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
+) : AccountService {
 
     override val currentUserId: String
         get() = auth.currentUser?.uid.orEmpty()
 
     override val hasUser: Boolean
         get() = auth.currentUser != null
+
+    override val currentUserProfile: Flow<UserProfile?>
+        get() = callbackFlow {
+            val uid = auth.currentUser?.uid
+            if (uid == null) {
+                close()
+            } else {
+                val docRef = firestore.collection("users").document(uid)
+                val listener = docRef.addSnapshotListener { snapshot, error ->
+                    if (error == null && snapshot != null && snapshot.exists()) {
+                        val profile = snapshot.toObject(UserProfile::class.java)
+                        if (profile != null) {
+                            trySend(profile)
+                        }
+                    } else {
+                        trySend(null)
+                    }
+                }
+
+                awaitClose { listener.remove() }
+            }
+        }
 
     override val currentAuthUser: Flow<AuthUser>
         get() = callbackFlow {

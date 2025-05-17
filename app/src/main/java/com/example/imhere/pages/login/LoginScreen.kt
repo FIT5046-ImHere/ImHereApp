@@ -29,17 +29,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.imhere.ui.theme.ImHereTheme
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
+fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    val isLoading = viewModel.isLoading
     val errorMessage = viewModel.errorMessage;
 
     LaunchedEffect(errorMessage) {
@@ -50,7 +51,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
 
     fun onLogin() {
         viewModel.login(email, password) {
-            Log.d("LoginViewModel", "Login successful for $email")
+            navController.navigate("home")
         }
     }
 
@@ -102,6 +103,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
 
             Button(
                 onClick = { onLogin() },
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -128,7 +130,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
                     text = "Don't have an account? Sign up",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
-                        .clickable { /* no action yet */ }
+                        .clickable { navController.navigate("register") }
                         .padding(top = 8.dp)
                 )
             }
@@ -139,7 +141,8 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
+    val navController = rememberNavController()
     ImHereTheme {
-        LoginScreen()
+        LoginScreen(navController = navController)
     }
 }
