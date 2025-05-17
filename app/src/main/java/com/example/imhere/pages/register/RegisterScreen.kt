@@ -1,5 +1,6 @@
-package com.example.imhere.pages
+package com.example.imhere.pages.register
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,11 +23,12 @@ import java.util.*
 
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.imhere.ui.theme.ImHereTheme
 
 
 @Composable
-fun RegistrationScreen() {
+fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -38,6 +40,42 @@ fun RegistrationScreen() {
     val showToast = { msg: String ->
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
+
+    val errorMessage = viewModel.errorMessage;
+    val isLoading = viewModel.isLoading;
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { showToast(it) }
+    }
+
+    fun onRegister() {
+        when {
+            name.isEmpty() -> showToast("Name is required")
+            email.isEmpty() -> showToast("Email is required")
+            password != confirmPassword -> showToast("Passwords don't match")
+            password.length < 6 || password.length > 12 -> showToast("Password must be 6–12 characters")
+            !password.any { it.isDigit() } -> showToast("Password must contain at least one number")
+            !password.all { it.isLetterOrDigit() } -> showToast("Password must not contain special characters")
+            isFutureDate(birthDate) -> showToast("Birth date cannot be in the future!")
+            else -> {
+                val bDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(birthDate)
+
+                if (bDate != null) {
+                    viewModel.register(
+                        email = email,
+                        type = "student",
+                        password = password,
+                        name = name,
+                        birthDate = bDate
+                    ) {
+                        Log.d("LoginViewModel", "Login successful for $email")
+                    }
+                }
+            }
+        }
+
+    }
+
 
     Column(
         modifier = Modifier
@@ -117,18 +155,8 @@ fun RegistrationScreen() {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(
-            onClick = {
-                when {
-                    name.isEmpty() -> showToast("Name is required")
-                    email.isEmpty() -> showToast("Email is required")
-                    password != confirmPassword -> showToast("Passwords don't match")
-                    password.length < 6 || password.length > 12 -> showToast("Password must be 6–12 characters")
-                    !password.any { it.isDigit() } -> showToast("Password must contain at least one number")
-                    !password.all { it.isLetterOrDigit() } -> showToast("Password must not contain special characters")
-                    isFutureDate(birthDate) -> showToast("Birth date cannot be in the future!")
-                    else -> showToast("Registration successful!")
-                }
-            },
+            onClick = { onRegister() },
+            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth()
                 .height(48.dp),
             ) {
@@ -153,6 +181,6 @@ fun isFutureDate(birthDate: String): Boolean {
 @Composable
 fun PreviewRegistration() {
     ImHereTheme {
-        RegistrationScreen()
+        RegisterScreen()
     }
 }

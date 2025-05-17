@@ -3,6 +3,7 @@ package com.example.imhere.di
 import com.example.imhere.model.service.AccountService
 import com.example.imhere.model.service.impl.AccountServiceImpl
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,5 +15,8 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideAccountService(auth: FirebaseAuth): AccountService = AccountServiceImpl(auth)
+    fun provideAccountService(
+        auth: FirebaseAuth,
+        firestore: FirebaseFirestore
+    ): AccountService = AccountServiceImpl(auth, firestore)
 }

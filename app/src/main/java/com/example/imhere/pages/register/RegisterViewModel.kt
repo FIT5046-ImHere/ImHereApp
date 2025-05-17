@@ -1,33 +1,50 @@
-package com.example.imhere.pages.login
+package com.example.imhere.pages.register
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.imhere.model.UserProfile
 import com.example.imhere.model.service.AccountService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class RegisterViewModel @Inject constructor(
     private val accountService: AccountService
 ) : ViewModel() {
-
     var isLoading by mutableStateOf(false)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    fun login(email: String, password: String, onSuccess: () -> Unit) {
+    fun register(
+        email: String,
+        password: String,
+        name: String,
+        type: String,
+        birthDate: Date,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-
             try {
-                accountService.signIn(email, password)
+                accountService.signUp(email, password)
+                val uid = accountService.currentUserId
+
+                // Create Firestore user profile
+                accountService.createUserProfile(uid, UserProfile(
+                    uid,
+                    name,
+                    type,
+                    birthDate
+                ))
+
                 onSuccess()
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "Login failed"

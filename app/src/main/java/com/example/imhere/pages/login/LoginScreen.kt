@@ -30,6 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.imhere.ui.theme.ImHereTheme
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {

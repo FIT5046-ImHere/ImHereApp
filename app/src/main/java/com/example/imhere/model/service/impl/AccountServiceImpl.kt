@@ -1,16 +1,18 @@
 package com.example.imhere.model.service.impl
 
-import com.example.imhere.model.User
+import com.example.imhere.model.AuthUser
+import com.example.imhere.model.UserProfile
 import com.example.imhere.model.service.AccountService
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : AccountService {
+class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, private val firestore: FirebaseFirestore) : AccountService {
 
     override val currentUserId: String
         get() = auth.currentUser?.uid.orEmpty()
@@ -18,18 +20,22 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
     override val hasUser: Boolean
         get() = auth.currentUser != null
 
-    override val currentUser: Flow<User>
+    override val currentAuthUser: Flow<AuthUser>
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
+                    this.trySend(auth.currentUser?.let { AuthUser(it.uid) } ?: AuthUser())
                 }
             auth.addAuthStateListener(listener)
             awaitClose { auth.removeAuthStateListener(listener) }
         }
 
-    override suspend fun authenticate(email: String, password: String) {
+    override suspend fun signIn(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
+    }
+
+    override suspend fun signUp(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password).await()
     }
 
     override suspend fun sendRecoveryEmail(email: String) {
@@ -38,10 +44,6 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
 
     override suspend fun createAnonymousAccount() {
         auth.signInAnonymously().await()
-    }
-
-    override suspend fun linkAccount(email: String, password: String) {
-        //TODO
     }
 
     override suspend fun deleteAccount() {
@@ -53,12 +55,24 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
             auth.currentUser!!.delete()
         }
         auth.signOut()
-
-        // Sign the user back in anonymously.
-        createAnonymousAccount()
     }
 
-    companion object {
-        private const val LINK_ACCOUNT_TRACE = "linkAccount"
+    override suspend fun createUserProfile(uid: String, profile: UserProfile) {
+        firestore.collection("users").document(uid).set(profile).await()
+    }
+
+    override suspend fun updateUserProfile(uid: String, profile: UserProfile) {
+        firestore.collection("users").document(uid)
+            .set(profile, SetOptions.merge()).await()
+    }
+
+    override suspend fun fetchUserProfile(uid: String): UserProfile? {
+        val snapshot = firestore.collection("users").document(uid).get().await()
+        return if (snapshot.exists()) {
+            snapshot.toObject(UserProfile::class.java)
+        } else {
+            null
+        }
+
     }
 }

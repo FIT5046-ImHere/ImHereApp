@@ -10,18 +10,24 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.imhere.di.AccountServiceEntryPoint
 import com.example.imhere.pages.ClassDetailsForm
 import com.example.imhere.pages.HomePage
 import com.example.imhere.pages.ReportPage
 import com.example.imhere.pages.login.LoginScreen
+import com.example.imhere.pages.register.RegisterScreen
 import com.example.imhere.ui.theme.Blue1
+import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.EntryPointAccessors
 
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
 
@@ -38,6 +44,20 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val context = LocalContext.current.applicationContext
+
+    val accountService = remember {
+        EntryPointAccessors.fromApplication(
+            context,
+            AccountServiceEntryPoint::class.java
+        ).accountService()
+    }
+
+    val startDestination = if (accountService.hasUser) {
+        "home"
+    } else {
+        "login"
+    }
 
     Scaffold(
         modifier = modifier,
@@ -75,7 +95,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("schedules") { ClassDetailsForm() }
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen() }
-            composable("login") { LoginScreen() }
+            composable("login") { RegisterScreen() }
         }
     }
 }
