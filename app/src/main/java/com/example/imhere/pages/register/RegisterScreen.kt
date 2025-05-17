@@ -30,7 +30,7 @@ import com.example.imhere.ui.theme.ImHereTheme
 
 
 @Composable
-fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController: NavHostController?) {
+fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController: NavHostController) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -92,7 +92,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
-                modifier = Modifier.clickable { /* Handle back action */ }
+                modifier = Modifier.clickable { navController.popBackStack() }
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
