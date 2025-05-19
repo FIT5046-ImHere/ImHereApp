@@ -3,6 +3,7 @@ package com.example.imhere.pages.create_class
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.model.ClassSession
+import com.example.imhere.model.ClassSessionRecurrence
 import com.example.imhere.model.service.ClassSessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -54,7 +55,7 @@ class ClassCreationViewModel @Inject constructor(
                     name = name,
                     location = location,
                     unitCode = unitCode,
-                    recurrence = recurrence,
+                    recurrence = ClassSessionRecurrence.valueOf(recurrence),
                     startDateTime = startDateTime,
                     endDateTime = endDateTime
                 )
