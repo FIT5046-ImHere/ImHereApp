@@ -346,7 +346,7 @@ fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> 
 @Preview(showBackground = true)
 @Composable
 fun PreviewStudentClassDetailPage() {
-    val futureStartTime = LocalDateTime.now().minusMinutes(30) // test
+    val futureStartTime = LocalDateTime.now().minusMinutes(30) // test case
     val futureEndTime = futureStartTime.plusHours(1)
 
     val sampleClass = ClassData(

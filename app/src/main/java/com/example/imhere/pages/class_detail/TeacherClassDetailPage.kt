@@ -71,6 +71,7 @@ fun TeacherClassDetailPage(
                 )
         )
         {
+
             // --- Class Info Header ---
             Text(
                 text = "Class Detail",
@@ -85,6 +86,7 @@ fun TeacherClassDetailPage(
                 fontWeight = FontWeight.Medium,
                 color = Color.DarkGray
             )
+
             // --- Class Name ---
             Text(
                 text = " $className",

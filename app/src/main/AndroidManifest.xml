@@ -19,6 +19,7 @@
         android:theme="@style/Theme.ImHere"
         tools:targetApi="31">
 
+
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
