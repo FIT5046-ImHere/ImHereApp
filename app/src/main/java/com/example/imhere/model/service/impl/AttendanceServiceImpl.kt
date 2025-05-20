@@ -4,6 +4,10 @@ import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
 import com.example.imhere.model.service.AttendanceService
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.util.UUID
@@ -96,6 +100,44 @@ class AttendanceServiceImpl @Inject constructor(
         val now = Date()
 
         return storedPassword == password && expireAt != null && now.before(expireAt)
+    }
+
+    override fun observeAttendances(
+        studentId: String?,
+        teacherId: String?,
+        classSessionId: String?,
+        startDate: Date?,
+        endDate: Date?
+    ): Flow<List<Attendance>> = callbackFlow {
+        var query = collection as com.google.firebase.firestore.Query
+
+        if (studentId != null) {
+            query = query.whereEqualTo("studentId", studentId)
+        }
+        if (teacherId != null) {
+            query = query.whereEqualTo("teacherId", teacherId)
+        }
+        if (classSessionId != null) {
+            query = query.whereEqualTo("classSessionId", classSessionId)
+        }
+        if (startDate != null) {
+            query = query.whereGreaterThanOrEqualTo("dateTime", startDate)
+        }
+        if (endDate != null) {
+            query = query.whereLessThanOrEqualTo("dateTime", endDate)
+        }
+
+        val listenerRegistration: ListenerRegistration = query.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+
+            val attendances = snapshot?.documents?.mapNotNull { it.toObject(Attendance::class.java) }
+            trySend(attendances ?: emptyList())
+        }
+
+        awaitClose { listenerRegistration.remove() }
     }
 }
 

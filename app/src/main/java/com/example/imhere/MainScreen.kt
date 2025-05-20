@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
+import com.example.imhere.pages.classes.ClassesScreen
 import com.example.imhere.pages.create_class.ClassDetailsForm
 import com.example.imhere.pages.home.HomePage
 import com.example.imhere.pages.report.ReportPage
@@ -91,7 +92,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
-            composable("schedules") { ClassDetailsForm() }
+            composable("schedules") { ClassesScreen(navController = navController) }
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen(navController = navController) }
 

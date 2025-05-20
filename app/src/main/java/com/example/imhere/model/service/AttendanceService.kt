@@ -2,6 +2,7 @@ package com.example.imhere.model.service
 
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 interface AttendanceService {
@@ -26,4 +27,12 @@ interface AttendanceService {
         startDate: Date?,
         endDate: Date?
     ): List<Attendance>
+
+    fun observeAttendances(
+        studentId: String?,
+        teacherId: String?,
+        classSessionId: String?,
+        startDate: Date?,
+        endDate: Date?
+    ): Flow<List<Attendance>>
 }
