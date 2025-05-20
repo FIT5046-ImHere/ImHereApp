@@ -6,6 +6,7 @@ import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
 import com.example.imhere.model.service.ClassSessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
@@ -15,9 +16,18 @@ import javax.inject.Inject
 class ClassCreationViewModel @Inject constructor(
     private val classSessionService: ClassSessionService
 ) : ViewModel() {
+    val classSessions = MutableStateFlow<List<ClassSession>>(emptyList())
+    init {
+        viewModelScope.launch {
+            try {
+                classSessions.value = classSessionService.getAllClassSessions()
+            } finally {
+
+            }
+        }
+    }
 
     var isSubmitting = false
-        private set
 
     private fun combineDateAndTime(date: Date, time: String): Date {
         val (hour, minute) = time.split(":").map { it.toInt() }

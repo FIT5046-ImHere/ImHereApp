@@ -2,6 +2,7 @@ package com.example.imhere.pages.create_class
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.TimePicker
 import android.widget.Toast
@@ -22,6 +23,12 @@ fun ClassDetailsForm(
     modifier: Modifier = Modifier,
     viewModel: ClassCreationViewModel = hiltViewModel()
 ) {
+    val classSessions by viewModel.classSessions.collectAsState(emptyList())
+
+    LaunchedEffect(classSessions) {
+        Log.d("ClassScreen", "Fetched sessions: $classSessions")
+    }
+
     val context = LocalContext.current
     val navController = rememberNavController()
 
