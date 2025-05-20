@@ -21,8 +21,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
 import com.example.imhere.pages.create_class.ClassDetailsForm
-import com.example.imhere.pages.HomePage
-import com.example.imhere.pages.ReportPage
+import com.example.imhere.pages.home.HomePage
+import com.example.imhere.pages.report.ReportPage
 import com.example.imhere.pages.login.LoginScreen
 import com.example.imhere.pages.register.RegisterScreen
 import com.example.imhere.ui.theme.Blue1

@@ -1,4 +1,4 @@
-package com.example.imhere.pages
+package com.example.imhere.pages.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.R
@@ -23,11 +22,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 data class Class(
-     val name: String,
-     val startDateTime: LocalDateTime,
-     val endDateTime: LocalDateTime,
-     val recurrence: Recurrence,
-     val location: String
+    val name: String,
+    val startDateTime: LocalDateTime,
+    val endDateTime: LocalDateTime,
+    val recurrence: Recurrence,
+    val location: String
 )
 
 enum class Recurrence {

@@ -2,22 +2,32 @@ package com.example.imhere.model.service.impl
 
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.service.ClassSessionService
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class ClassSessionServiceImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    firestore: FirebaseFirestore
 ) : ClassSessionService {
 
     private val collection = firestore.collection("classSessions")
 
-    override suspend fun getAllClassesByStudentId(studentId: String): List<ClassSession> {
-        val snapshot = collection
-            .whereArrayContains("studentIds", studentId) // assumes studentIds: List<String>
-            .get()
-            .await()
+    override suspend fun getAllClassSessions(
+        studentId: String?,
+        teacherId: String?
+    ): List<ClassSession> {
+        var query = collection
 
+        if (studentId != null) {
+            query = query.whereArrayContains("studentIds", studentId) as CollectionReference
+        }
+
+        if (teacherId != null) {
+            query = query.whereEqualTo("teacherId", teacherId) as CollectionReference
+        }
+
+        val snapshot = query.get().await()
         return snapshot.documents.mapNotNull { it.toObject(ClassSession::class.java) }
     }
 
