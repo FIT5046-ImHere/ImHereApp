@@ -92,7 +92,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
             composable("schedules") { ClassDetailsForm() }
-            composable("report") { ReportPage() }
+            composable("report") { ReportPage(navController = navController) }
             composable("profile") { ProfileScreen(navController = navController) }
 
             // Auth screens

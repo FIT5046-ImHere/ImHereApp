@@ -13,17 +13,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.example.imhere.pages.login.LoginViewModel
 import java.util.*
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun ReportPage(modifier: Modifier = Modifier) {
+fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltViewModel(), navController: NavHostController) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
-
+    val attendances = viewModel.attendances
     var fromDate by remember { mutableStateOf("") }
     var toDate by remember { mutableStateOf("") }
 
