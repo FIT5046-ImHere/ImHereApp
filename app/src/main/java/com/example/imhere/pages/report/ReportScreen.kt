@@ -1,6 +1,5 @@
 package com.example.imhere.pages.report
 
-import SimplePieChart
 import android.app.DatePickerDialog
 import android.os.Build
 import android.util.Log
@@ -12,22 +11,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.imhere.pages.login.LoginViewModel
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.formatter.PercentFormatter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+
+
+// Toggle between Pie and Line charts
+enum class ChartToggleType { PIE, LINE }
 
 //@Preview(showBackground = true)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -41,6 +44,9 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
     val attendances = viewModel.attendances
 //    var fromDate by remember { mutableStateOf("") }
 //    var toDate by remember { mutableStateOf("") }
+
+    // Chart selection state
+    var chartType by remember { mutableStateOf(ChartToggleType.PIE) }
 
     val fromDatePickerDialog = DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
         val text = "$d/${m + 1}/$y"
@@ -78,6 +84,10 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
     val formattedStartDate = viewModel.startDate.format(dateFormatter)
     val formattedEndDate = viewModel.endDate.format(dateFormatter)
 
+
+    val lineDataSets by remember { derivedStateOf { viewModel.makeLineDataSets() } }
+
+
     Column(modifier = modifier.padding(16.dp)) {
         Text(
             "Your Report",
@@ -93,7 +103,7 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
             Box(modifier = Modifier.weight(1f)) {
                 OutlinedTextField(
                     value = formattedStartDate,
-                    onValueChange = {},
+                    onValueChange = {}, //add
                     label = { Text("From") },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth()
@@ -108,7 +118,7 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
             Box(modifier = Modifier.weight(1f)) {
                 OutlinedTextField(
                     value = formattedEndDate,
-                    onValueChange = {},
+                    onValueChange = { },
                     label = { Text("To") },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth()
@@ -122,22 +132,45 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-            Text("Filter")
+            Text("Filter") //add onclick
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Toggle buttons
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            ChartToggleType.entries.forEach { type ->
+                Button(
+                    onClick = { chartType = type },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (chartType == type)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(type.name)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Chart container
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .height(300.dp),
             contentAlignment = Alignment.Center
         ) {
-//            TODO: create chart
+            when (chartType) {
+                ChartToggleType.PIE -> {
+//        TODO: create chart
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { context ->
                     PieChart(context).apply {
                         data = pieData
                         description.isEnabled = false
-                        centerText = "Expenses"
+                        centerText = "Attendance Status"
                         setDrawCenterText(true)
                         setEntryLabelTextSize(14f)
                         animateY(4000)
@@ -155,8 +188,45 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
                     )
                     chart.invalidate()  // redraw with new data
                 }
-            )
 
+            )
+                }
+
+                ChartToggleType.LINE -> {
+                    AndroidView(
+                        modifier = modifier.fillMaxSize(),
+                        factory = { ctx ->
+                            LineChart(ctx).apply {
+                                // initial styling
+                                description.isEnabled = false
+                                axisRight.isEnabled = false
+                                animateX(1000)
+                                xAxis.granularity = 1f
+                                xAxis.setDrawLabels(true)
+                                // initial data
+                                data = LineData(lineDataSets)
+                                xAxis.valueFormatter =
+                                    IndexAxisValueFormatter(viewModel.dateLabels)
+                            }
+                        },
+                        update = { chart ->
+
+                            chart.data = LineData(lineDataSets)
+                            // 1) Ask ViewModel for filtered data between startDate and endDate
+//                            val filteredDataSets = viewModel.getLineDataSetsBetween(startDate, endDate)
+//                            val dateLabels       = viewModel.getDateLabelsBetween(startDate, endDate)
+
+                            // 2) Apply it to the chart
+//                            chart.data = LineData(filteredDataSets)
+                            chart.xAxis.valueFormatter = IndexAxisValueFormatter(viewModel.dateLabels)
+
+                            // 3) Refresh
+                            chart.invalidate()
+                        }
+                    )
+                }
+            }
+        }
         }
     }
-}
+

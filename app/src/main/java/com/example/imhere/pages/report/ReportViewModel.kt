@@ -14,7 +14,10 @@ import com.example.imhere.mock_data.AttendanceMockData
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
 import com.example.imhere.model.service.AccountService
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.utils.ColorTemplate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -87,6 +90,35 @@ class ReportViewModel @Inject constructor(
             .distinct()
             .sorted()
             .map { it.format(dateFormatter) }
+    }
+    /**
+     * Builds a LineDataSet per AttendanceStatus,
+     * mapping each date label index to the count on that day.
+     */
+    fun makeLineDataSets(): List<LineDataSet> {
+        // Group records by LocalDate
+        val groupedByDate = filteredAttendances.groupBy { attendance ->
+            attendance.dateTime.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+        }
+
+        return AttendanceStatus.entries.toTypedArray().mapIndexed { index, status ->
+            // Create chart entries: (x=index of dateLabels, y=count)
+            val entries = dateLabels.mapIndexed { idx, label ->
+                val date = LocalDate.parse(label, dateFormatter)
+                val count = groupedByDate[date]?.count { it.status == status } ?: 0
+                Entry(idx.toFloat(), count.toFloat())
+            }
+            LineDataSet(entries, status.name.lowercase().replaceFirstChar { it.uppercase() }).apply {
+                color = ColorTemplate.MATERIAL_COLORS[index % ColorTemplate.MATERIAL_COLORS.size]
+                setCircleColor(color)
+                lineWidth = 2f
+                circleRadius = 4f
+                valueTextSize = 10f
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+            }
+        }
     }
 
 
