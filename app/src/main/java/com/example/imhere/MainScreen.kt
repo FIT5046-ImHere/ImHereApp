@@ -1,6 +1,8 @@
 package com.example.imhere
 
 import ProfileScreen
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -20,6 +22,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
+import com.example.imhere.model.ClassSession
+import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.pages.class_detail.StudentClassDetailPage
 import com.example.imhere.pages.create_class.ClassDetailsForm
 import com.example.imhere.pages.enrollment.EnrollmentScreen
 import com.example.imhere.pages.home.HomePage
@@ -28,6 +33,9 @@ import com.example.imhere.pages.login.LoginScreen
 import com.example.imhere.pages.register.RegisterScreen
 import com.example.imhere.ui.theme.Blue1
 import dagger.hilt.android.EntryPointAccessors
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
 
@@ -36,15 +44,17 @@ val navItems = listOf(
     NavItem("Schedules", Icons.Default.DateRange, "schedules"),
     NavItem("Report", Icons.Default.Build, "report"),
     NavItem("Profile", Icons.Default.Person, "profile"),
-    NavItem("Login", Icons.Default.Person, "login")
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current.applicationContext
+    val bottomNavRoutes = navItems
+        .map { it.route }
 
     val accountService = remember {
         EntryPointAccessors.fromApplication(
@@ -59,7 +69,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            if (isLoggedIn && currentRoute !in listOf("login", "register")) {
+            if (isLoggedIn && currentRoute in bottomNavRoutes) {
                 NavigationBar {
                     navItems.filterNot { it.route == "login" }.forEach { item ->
                         NavigationBarItem(
@@ -68,7 +78,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             selected = currentRoute == item.route,
                             onClick = {
                                 navController.navigate(item.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
+                                    popUpTo(navController.graph.startDestinationId) {
                                         saveState = true
                                     }
                                     launchSingleTop = true
@@ -99,6 +109,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("enrollment/{classSessionId}") { backStackEntry ->
                 val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
                 EnrollmentScreen(navController = navController, classSessionId = classSessionId)
+            }
+
+            composable("classes/{classSessionId}") { backStackEntry ->
+                val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
+                val sampleClass = ClassSession(
+                    id = "class001",
+                    name = "Mathematics 101",
+                    location = "Room A-101",
+                    unitCode = "FIT5046",
+                    teacherId = "teacher001",
+                    recurrence = ClassSessionRecurrence.WEEKLY,
+                    startDateTime = Date(),
+                    endDateTime = Date()
+                )
+                StudentClassDetailPage(
+                    navController = navController,
+                    classInfo = sampleClass,
+                    classSessionId = classSessionId
+                )
             }
 
             // Auth screens

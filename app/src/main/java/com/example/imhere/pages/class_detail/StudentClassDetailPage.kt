@@ -36,7 +36,12 @@ import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewModel(), classInfo: ClassSession, navController: NavHostController) {
+fun StudentClassDetailPage(
+    viewModel: StudentClassDetailViewModel = hiltViewModel(),
+    classInfo: ClassSession,
+    classSessionId: String?,
+    navController: NavHostController
+) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
     var attendanceStatus by remember { mutableStateOf<String?>(null) }
     var scannedResult by remember { mutableStateOf<String?>(null) }
@@ -57,42 +62,11 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
     val scanWindowStart = remember(startDateTime) { startDateTime.minusMinutes(10) }
     val scanWindowEnd = remember(endDateTime) { endDateTime }
 
-    val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(endDateTime)
+//    val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(endDateTime)
 
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: ""
-
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                navItems.filterNot { it.route == "login" }.forEach { item ->
-                    NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label) },
-                        selected = currentRoute == item.route,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = Blue1.copy(alpha = 0.2f)
-                        )
-                    )
-                }
-            }
-        }
-    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 20.dp, vertical = 30.dp),
         ) {
 
@@ -307,10 +281,7 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
                 }
             }
 
-
-
         }
-    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -360,7 +331,8 @@ fun PreviewStudentClassDetailPage() {
 
     StudentClassDetailPage(
         classInfo = sampleClass,
-        navController = rememberNavController() //
+        navController = rememberNavController(),
+        classSessionId = ""
     )
 }
 
