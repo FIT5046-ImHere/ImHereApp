@@ -16,6 +16,7 @@ class StudentClassDetailViewModel @Inject constructor(
     private val accountService: AccountService,
     private val attendanceService: AttendanceService
 ) : ViewModel() {
+    private val currentUserId = accountService.currentUserId
     fun markAttendance(classSessionId: String,password: String, onSuccess: () -> Unit, onError: (String?) -> Unit) {
         viewModelScope.launch {
             try {
@@ -25,7 +26,8 @@ class StudentClassDetailViewModel @Inject constructor(
                         studentId = accountService.currentUserId,
                         classSessionId = classSessionId,
                         dateTime = Date(),
-                        status = AttendanceStatus.PRESENT
+                        status = AttendanceStatus.PRESENT,
+                        teacherId = currentUserId
                     )
                 }
                 onSuccess()

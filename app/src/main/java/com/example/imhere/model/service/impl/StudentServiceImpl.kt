@@ -14,7 +14,7 @@ class StudentServiceImpl @Inject constructor(
 
     override suspend fun getStudents(): List<UserProfile> {
         val snapshot = usersCollection
-            .whereEqualTo("type", "student")
+            .whereEqualTo("type", "STUDENT")
             .get()
             .await()
 
