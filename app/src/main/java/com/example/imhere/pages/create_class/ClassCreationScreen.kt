@@ -15,9 +15,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.imhere.model.ClassSessionRecurrence
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassDetailsForm(
     modifier: Modifier = Modifier,
@@ -35,7 +37,8 @@ fun ClassDetailsForm(
     var className by remember { mutableStateOf("") }
     var unitCode by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    var recurrence by remember { mutableStateOf("") }
+    var selectedRecurrence by remember { mutableStateOf(ClassSessionRecurrence.ONCE) }
+    var recurrenceExpanded by remember { mutableStateOf(false) }
 
     var fromDate by remember { mutableStateOf("") }
     var toDate by remember { mutableStateOf("") }
@@ -65,7 +68,7 @@ fun ClassDetailsForm(
 
     fun onSubmit() {
         if (className.isBlank() || unitCode.isBlank() || location.isBlank() ||
-            recurrence.isBlank() || fromDate.isBlank() || toDate.isBlank() ||
+            fromDate.isBlank() || toDate.isBlank() ||
             startTime.isBlank() || endTime.isBlank()
         ) {
             Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
@@ -80,7 +83,7 @@ fun ClassDetailsForm(
                 name = className,
                 unitCode = unitCode,
                 location = location,
-                recurrence = recurrence,
+                recurrence = selectedRecurrence.name.uppercase(),
                 startDate = sDate,
                 endDate = eDate,
                 startTime = startTime,
@@ -124,12 +127,35 @@ fun ClassDetailsForm(
         )
 
         Spacer(modifier = Modifier.height(10.dp))
-        OutlinedTextField(
-            value = recurrence,
-            onValueChange = { recurrence = it },
-            label = { Text("Recurrence*") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        ExposedDropdownMenuBox(
+            expanded = recurrenceExpanded,
+            onExpandedChange = { recurrenceExpanded = !recurrenceExpanded }
+        ) {
+            OutlinedTextField(
+                readOnly = true,
+                value = selectedRecurrence.name.lowercase().replaceFirstChar { it.uppercase() },
+                onValueChange = {},
+                label = { Text("Recurrence*") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = recurrenceExpanded) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = recurrenceExpanded,
+                onDismissRequest = { recurrenceExpanded = false }
+            ) {
+                ClassSessionRecurrence.entries.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(option.name.lowercase().replaceFirstChar { it.uppercase() })
+                        },
+                        onClick = {
+                            selectedRecurrence = option
+                            recurrenceExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth()) {

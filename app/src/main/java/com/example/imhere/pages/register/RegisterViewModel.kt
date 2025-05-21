@@ -41,6 +41,7 @@ class RegisterViewModel @Inject constructor(
                 accountService.createUserProfile(uid, UserProfile(
                     uid,
                     name,
+                    email,
                     type,
                     birthDate
                 ))
