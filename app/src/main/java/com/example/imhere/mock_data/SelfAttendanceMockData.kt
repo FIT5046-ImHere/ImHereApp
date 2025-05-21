@@ -7,6 +7,7 @@ import java.util.*
 
 object SelfAttendanceMockData {
     val studentId = "DyZCoUTXeJUDmnx3yDbFzPBeh3l2"
+    private val sessionIds = (1..10).map { it.toString() }
     private val statuses = AttendanceStatus.entries.toTypedArray()
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -19,7 +20,7 @@ object SelfAttendanceMockData {
 
         Attendance(
             studentId = studentId,
-            classSessionId = UUID.randomUUID().toString(),
+            classSessionId = sessionIds.random(),
             dateTime = date,
             status = statuses.random()
         )
