@@ -32,6 +32,13 @@ fun ClassesScreen(navController: NavHostController) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
             )
+            /*
+            Text(
+            "Your Report",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+            )
+            */
         }
         item {
             Text(
