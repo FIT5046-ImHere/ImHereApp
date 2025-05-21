@@ -5,7 +5,8 @@ import com.example.imhere.model.AttendanceStatus
 import java.text.SimpleDateFormat
 import java.util.*
 
-object AttendanceMockData {
+object SelfAttendanceMockData {
+    val studentId = "DyZCoUTXeJUDmnx3yDbFzPBeh3l2"
     private val statuses = AttendanceStatus.entries.toTypedArray()
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -17,7 +18,7 @@ object AttendanceMockData {
         val date = Date(baseDate.time + dayOffset * 24 * 60 * 60 * 1000L)
 
         Attendance(
-            studentId = UUID.randomUUID().toString(),
+            studentId = studentId,
             classSessionId = UUID.randomUUID().toString(),
             dateTime = date,
             status = statuses.random()
