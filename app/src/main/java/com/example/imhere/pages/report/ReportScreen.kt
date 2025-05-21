@@ -2,7 +2,6 @@ package com.example.imhere.pages.report
 
 import android.app.DatePickerDialog
 import android.os.Build
-import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -33,17 +32,23 @@ import java.util.*
 enum class ChartToggleType { PIE, LINE }
 
 //@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltViewModel(), navController: NavHostController) {
+fun ReportPage(
+    modifier: Modifier = Modifier,
+    viewModel: ReportViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+
+
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
+
     val attendances = viewModel.attendances
-//    var fromDate by remember { mutableStateOf("") }
-//    var toDate by remember { mutableStateOf("") }
 
     // Chart selection state
     var chartType by remember { mutableStateOf(ChartToggleType.PIE) }
@@ -53,20 +58,24 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
         val formatter = DateTimeFormatter.ofPattern("d/M/yyyy")
         viewModel.startDate = LocalDate.parse(text, formatter)
     }, year, month, day)
-
     val toDatePickerDialog = DatePickerDialog(context, { _: DatePicker, y: Int, m: Int, d: Int ->
         val text = "$d/${m + 1}/$y"
         val formatter = DateTimeFormatter.ofPattern("d/M/yyyy")
         viewModel.endDate = LocalDate.parse(text, formatter)
     }, year, month, day)
 
-//    val data = listOf(50f, 30f, 20f)
-//    val colors = listOf(Color.Green, Color.Blue, Color.Red)
-//    val labels = listOf("Present", "Late", "Absent")
+    // Class sessions for dropdown
+    // Use selectedClassId string instead of whole object
+    var isExpanded by remember { mutableStateOf(false) }
+//    var selectedSessionId = viewModel.selectedSessionId
+    val selectedSession = viewModel.classSessions.find{ it.id == viewModel.selectedSessionId }
+    // Build options: null for all + each session id
+    val sessionOptions = listOf<String?>(null) + viewModel.classSessions.map { it.id }
 
-    LaunchedEffect(viewModel.pieEntries) {
-        Log.d("LaunchedEffectCunt", "CHAAANGEGEEEEs")
-    }
+
+//    LaunchedEffect(viewModel.pieEntries) {
+//        Log.d("LaunchedEffectCunt", "CHAAANGEGEEEEs")
+//    }
 
     val pieDataSet = PieDataSet(viewModel.pieEntries, "Pie Data Set")
     pieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
@@ -75,7 +84,7 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
     pieDataSet.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE;
     //we created a class for adding "%" sign using
     pieDataSet.valueFormatter = PercentFormatter()
-    pieDataSet.valueTextSize= 40f
+    pieDataSet.valueTextSize = 40f
 
     // Date formatter for display: day/month/year
     val dateFormatter = remember { DateTimeFormatter.ofPattern("d/M/yyyy") }
@@ -86,6 +95,7 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
 
 
     val lineDataSets by remember { derivedStateOf { viewModel.makeLineDataSets() } }
+
 
 
     Column(modifier = modifier.padding(16.dp)) {
@@ -152,6 +162,49 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(36.dp))
+
+
+        ExposedDropdownMenuBox(
+            expanded = isExpanded,
+            modifier = Modifier.padding(10.dp),
+            onExpandedChange = { isExpanded = it }
+        ) {
+            TextField(
+                value = selectedSession?.name ?: "All Classes",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Class Session") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(isExpanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("All Classes") },
+                    onClick = {
+                        viewModel.selectedSessionId = null
+                        isExpanded = false
+                    }
+                )
+                viewModel.classSessions.forEach { session ->
+                    DropdownMenuItem(
+                        text = { Text(session.name) },
+                        onClick = {
+                            viewModel.selectedSessionId = session.id
+                            isExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Chart container
@@ -164,32 +217,32 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
             when (chartType) {
                 ChartToggleType.PIE -> {
 //        TODO: create chart
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { context ->
-                    PieChart(context).apply {
-                        data = pieData
-                        description.isEnabled = false
-                        centerText = "Attendance Status"
-                        setDrawCenterText(true)
-                        setEntryLabelTextSize(14f)
-                        animateY(4000)
-                    }
-                },
-                update = { chart ->
-                    // Called on every recomposition!  Here you can give it fresh data:
-                    chart.data = PieData(
-                        PieDataSet(viewModel.pieEntries, "Status")
-                            .apply {
-                                colors = ColorTemplate.COLORFUL_COLORS.toList()
-                                valueFormatter = PercentFormatter()
-                                valueTextSize = 12f
+                    AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { context ->
+                            PieChart(context).apply {
+                                data = pieData
+                                description.isEnabled = false
+                                centerText = "Attendance Status"
+                                setDrawCenterText(true)
+                                setEntryLabelTextSize(14f)
+                                animateY(4000)
                             }
-                    )
-                    chart.invalidate()  // redraw with new data
-                }
+                        },
+                        update = { chart ->
+                            // Called on every recomposition!  Here you can give it fresh data:
+                            chart.data = PieData(
+                                PieDataSet(viewModel.pieEntries, "Status")
+                                    .apply {
+                                        colors = ColorTemplate.COLORFUL_COLORS.toList()
+                                        valueFormatter = PercentFormatter()
+                                        valueTextSize = 12f
+                                    }
+                            )
+                            chart.invalidate()  // redraw with new data
+                        }
 
-            )
+                    )
                 }
 
                 ChartToggleType.LINE -> {
@@ -218,7 +271,8 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
 
                             // 2) Apply it to the chart
 //                            chart.data = LineData(filteredDataSets)
-                            chart.xAxis.valueFormatter = IndexAxisValueFormatter(viewModel.dateLabels)
+                            chart.xAxis.valueFormatter =
+                                IndexAxisValueFormatter(viewModel.dateLabels)
 
                             // 3) Refresh
                             chart.invalidate()
@@ -227,6 +281,7 @@ fun ReportPage(modifier: Modifier = Modifier, viewModel: ReportViewModel = hiltV
                 }
             }
         }
-        }
+
     }
+}
 
