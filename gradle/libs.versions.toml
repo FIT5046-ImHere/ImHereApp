@@ -22,6 +22,10 @@ navigationTesting = "2.9.0"
 navigationUi = "2.9.0"
 transition = "1.2.0"
 composeMaterial3 = "1.5.0-beta01"
+navigationCommonAndroid = "2.9.0"
+
+zxing = "4.3.0"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +58,11 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 androidx-transition = { group = "androidx.transition", name = "transition", version.ref = "transition" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
+
+
+zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
