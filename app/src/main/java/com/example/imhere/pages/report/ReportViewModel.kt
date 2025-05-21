@@ -3,7 +3,6 @@ package com.example.imhere.pages.report
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.mock_data.AttendanceMockData
+import com.example.imhere.mock_data.ClassSessionMockData
 import com.example.imhere.mock_data.SelfAttendanceMockData
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
@@ -21,12 +21,6 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
@@ -44,7 +38,7 @@ class ReportViewModel @Inject constructor(
 //    val records: StateFlow<List<Attendance>> = _records.asStateFlow()
 ) : ViewModel() {
     var profile by mutableStateOf<UserProfile?>(null)
-
+    var selectedSessionId by mutableStateOf<String?>(null)
 
     init {
         viewModelScope.launch {
@@ -53,6 +47,7 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
+
     private val selfAttendances = SelfAttendanceMockData.attendanceList
     private val allAttendances = AttendanceMockData.attendanceList
 
@@ -60,7 +55,48 @@ class ReportViewModel @Inject constructor(
         get() = if (profile?.type == "teacher") allAttendances else selfAttendances
 
     init {
-        Log.d("ReportViewModel",attendances.toString())
+        Log.d("ReportViewModel", attendances.toString())
+    }
+
+    /**
+     * 2a. Distinct classSessionIds from current attendances
+     */
+    /**
+     * 2a. Distinct classSessionIds based on user type: teachers see all class IDs, students see only their own
+     */
+    val classIds by derivedStateOf {
+        if (profile?.type == "teacher") {
+            // Teacher: all class sessions from mock data
+            ClassSessionMockData.classSessions.mapNotNull { it.id }
+        } else {
+            // Student: only sessions in their own attendance
+            selfAttendances.map { it.classSessionId }
+        }.distinct()
+    }
+
+
+    /**
+     * 2b. Link classSessionIds to actual ClassSession info for display
+     */
+    /**
+     * 2b. Link classSessionIds to actual ClassSession info for display
+     */
+    val classSessions by derivedStateOf {
+        if (profile?.type == "teacher") {
+            // Teacher: show all class session details
+            ClassSessionMockData.classSessions
+        } else {
+            // Student: filter to only their class sessions
+            ClassSessionMockData.classSessions
+//            ClassSessionMockData.classSessions.filter { session ->
+//                session.id != null && classIds.contains(session.id)
+//            }
+        }
+    }
+
+
+    init {
+        Log.d("ReportViewModel ClassSession", classSessions.toString())
     }
 
     // Date range state (default: last 1 month)
@@ -73,7 +109,7 @@ class ReportViewModel @Inject constructor(
             val recordDate = attendance.dateTime.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
-            !recordDate.isBefore(startDate) && !recordDate.isAfter(endDate)
+            (!recordDate.isBefore(startDate) && !recordDate.isAfter(endDate)) && (selectedSessionId == null || attendance.classSessionId == selectedSessionId)
         }
     }
 
@@ -108,6 +144,7 @@ class ReportViewModel @Inject constructor(
             .sorted()
             .map { it.format(dateFormatter) }
     }
+
     /**
      * Builds a LineDataSet per AttendanceStatus,
      * mapping each date label index to the count on that day.
@@ -127,7 +164,9 @@ class ReportViewModel @Inject constructor(
                 val count = groupedByDate[date]?.count { it.status == status } ?: 0
                 Entry(idx.toFloat(), count.toFloat())
             }
-            LineDataSet(entries, status.name.lowercase().replaceFirstChar { it.uppercase() }).apply {
+            LineDataSet(
+                entries,
+                status.name.lowercase().replaceFirstChar { it.uppercase() }).apply {
                 color = ColorTemplate.MATERIAL_COLORS[index % ColorTemplate.MATERIAL_COLORS.size]
                 setCircleColor(color)
                 lineWidth = 2f
@@ -137,6 +176,7 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
+
 
 
 }
