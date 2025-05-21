@@ -8,13 +8,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.mock_data.AttendanceMockData
 import com.example.imhere.model.service.AccountService
+import com.example.imhere.model.service.AttendanceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val attendanceService: AttendanceService
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
