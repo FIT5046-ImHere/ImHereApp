@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.model.ClassSessionRecurrence
 import java.text.SimpleDateFormat
@@ -23,7 +24,8 @@ import java.util.*
 @Composable
 fun ClassDetailsForm(
     modifier: Modifier = Modifier,
-    viewModel: ClassCreationViewModel = hiltViewModel()
+    viewModel: ClassCreationViewModel = hiltViewModel(),
+    navController: NavHostController = rememberNavController()
 ) {
     val classSessions by viewModel.classSessions.collectAsState(emptyList())
 
@@ -32,7 +34,6 @@ fun ClassDetailsForm(
     }
 
     val context = LocalContext.current
-    val navController = rememberNavController()
 
     var className by remember { mutableStateOf("") }
     var unitCode by remember { mutableStateOf("") }
@@ -88,9 +89,9 @@ fun ClassDetailsForm(
                 endDate = eDate,
                 startTime = startTime,
                 endTime = endTime,
-                onSuccess = {
+                onSuccess = { classSession ->
                     Toast.makeText(context, "Class created successfully", Toast.LENGTH_SHORT).show()
-                    navController.popBackStack()
+                    navController.navigate("enrollment/${classSession?.id}")
                 },
                 onError = {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()

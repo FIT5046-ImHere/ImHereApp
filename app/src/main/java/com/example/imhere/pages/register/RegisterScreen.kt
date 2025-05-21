@@ -71,6 +71,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
                         birthDate = bDate
                     ) {
                         Log.d("LoginViewModel", "Login successful for $email")
+                        navController.navigate("home")
                     }
                 }
             }

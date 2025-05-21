@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
 import com.example.imhere.pages.create_class.ClassDetailsForm
+import com.example.imhere.pages.enrollment.EnrollmentScreen
 import com.example.imhere.pages.home.HomePage
 import com.example.imhere.pages.report.ReportPage
 import com.example.imhere.pages.login.LoginScreen
@@ -91,9 +92,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
-            composable("schedules") { ClassDetailsForm() }
+            composable("schedules") { ClassDetailsForm(navController = navController) }
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen(navController = navController) }
+
+            composable("enrollment/{classSessionId}") { backStackEntry ->
+                val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
+                EnrollmentScreen(navController = navController, classSessionId = classSessionId)
+            }
 
             // Auth screens
             composable("login") { LoginScreen(navController = navController) }
