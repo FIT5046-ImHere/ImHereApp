@@ -23,44 +23,41 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.example.imhere.model.ClassSession
+import com.example.imhere.model.ClassSessionRecurrence
 import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.CaptureActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
-enum class Recurrence {
-    NONE, DAILY, WEEKLY, MONTHLY
-}
-
-data class ClassData(
-    val id: String,
-    val name: String,
-    val startDateTime: LocalDateTime,
-    val endDateTime: LocalDateTime,
-    val recurrence: Recurrence,
-    val location: String
-)
-
-
+import kotlinx.coroutines.delay
+import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun StudentClassDetailPage(
-    classInfo: ClassData,
-    attendanceStatus: String?,
-    onScanClick: () -> Unit
-) {
+fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewModel(), classInfo: ClassSession, navController: NavHostController) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
+    var attendanceStatus by remember { mutableStateOf<String?>(null) }
+    var scannedResult by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         while (true) {
             now.value = LocalDateTime.now()
-            kotlinx.coroutines.delay(1000)
+            delay(1000)
         }
     }
-    val scanWindowStart = classInfo.startDateTime.minusMinutes(10)
-    val scanWindowEnd = classInfo.endDateTime
-    val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(scanWindowEnd)
+    val zoneId = ZoneId.systemDefault()
+    val startDateTime = remember(classInfo.startDateTime) {
+        classInfo.startDateTime.toInstant().atZone(zoneId).toLocalDateTime()
+    }
+    val endDateTime = remember(classInfo.endDateTime) {
+        classInfo.endDateTime.toInstant().atZone(zoneId).toLocalDateTime()
+    }
+    val scanWindowStart = remember(startDateTime) { startDateTime.minusMinutes(10) }
+    val scanWindowEnd = remember(endDateTime) { endDateTime }
+
+    val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(endDateTime)
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -147,7 +144,7 @@ fun StudentClassDetailPage(
 
                     )
                     Text(
-                        text = classInfo.startDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                        text = startDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
                     )
                 }
@@ -160,7 +157,7 @@ fun StudentClassDetailPage(
 
                     )
                     Text(
-                        text = classInfo.endDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                        text = endDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
                     )
                 }
@@ -238,6 +235,7 @@ fun StudentClassDetailPage(
                 val isTooEarly = now.value.isBefore(scanWindowStart)
                 val isTooLate = now.value.isAfter(scanWindowEnd)
 
+
                 val remainingTimeText = when {
                     now.value.isBefore(scanWindowStart) -> {
                         val duration = Duration.between(now.value, scanWindowStart)
@@ -255,7 +253,6 @@ fun StudentClassDetailPage(
                     }
                     else -> null
                 }
-
                 // --- Scan Button ---
                 Button(
                     onClick = {
@@ -341,26 +338,29 @@ fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> 
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewStudentClassDetailPage() {
-    val futureStartTime = LocalDateTime.now().minusMinutes(30) // test case
+    val now = LocalDateTime.now()
+    val futureStartTime = now.plusMinutes(13)
     val futureEndTime = futureStartTime.plusHours(1)
 
-    val sampleClass = ClassData(
+    val zoneId = ZoneId.systemDefault()
+    val sampleClass = ClassSession(
         id = "class001",
         name = "Mathematics 101",
-        startDateTime = futureStartTime,
-        endDateTime = futureEndTime,
-        recurrence = Recurrence.WEEKLY,
-        location = "Room A-101"
+        location = "Room A-101",
+        unitCode = "FIT5046",
+        teacherId = "teacher001",
+        recurrence = ClassSessionRecurrence.WEEKLY,
+        startDateTime = Date.from(futureStartTime.atZone(zoneId).toInstant()),
+        endDateTime = Date.from(futureEndTime.atZone(zoneId).toInstant())
     )
 
     StudentClassDetailPage(
         classInfo = sampleClass,
-        attendanceStatus = null,
-        onScanClick = { println("Scan clicked!") }
+        navController = rememberNavController() //
     )
 }
+
