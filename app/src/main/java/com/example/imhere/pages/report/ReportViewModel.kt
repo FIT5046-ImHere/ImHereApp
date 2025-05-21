@@ -11,8 +11,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.mock_data.AttendanceMockData
+import com.example.imhere.mock_data.SelfAttendanceMockData
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
+import com.example.imhere.model.UserProfile
 import com.example.imhere.model.service.AccountService
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -36,11 +39,25 @@ enum class ChartType { PIE, BAR }
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class ReportViewModel @Inject constructor(
-//    private val accountService: AccountService
+    private val accountService: AccountService
 //    private val _records: MutableStateFlow<List<Attendance>> = MutableStateFlow<List<Attendance>>(AttendanceMockData.attendanceList),
 //    val records: StateFlow<List<Attendance>> = _records.asStateFlow()
 ) : ViewModel() {
-    val attendances = AttendanceMockData.attendanceList
+    var profile by mutableStateOf<UserProfile?>(null)
+
+
+    init {
+        viewModelScope.launch {
+            accountService.currentUserProfile.collect {
+                profile = it
+            }
+        }
+    }
+    private val selfAttendances = SelfAttendanceMockData.attendanceList
+    private val allAttendances = AttendanceMockData.attendanceList
+
+    val attendances: List<Attendance>
+        get() = if (profile?.type == "teacher") allAttendances else selfAttendances
 
     init {
         Log.d("ReportViewModel",attendances.toString())

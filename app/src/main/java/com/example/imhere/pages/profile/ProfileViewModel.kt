@@ -17,6 +17,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     var profile by mutableStateOf<UserProfile?>(null)
 
+
     init {
         viewModelScope.launch {
             accountService.currentUserProfile.collect {
