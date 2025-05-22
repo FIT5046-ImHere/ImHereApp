@@ -16,10 +16,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TeacherClassDetailViewModel @Inject constructor(
-    private val accountService: AccountService,
     private val attendanceService: AttendanceService,
     private val classSessionService: ClassSessionService
 ) : ViewModel() {
+    val isSaving = MutableStateFlow(false)
     val classSession = MutableStateFlow<ClassSession?>(null)
     val isLoading = MutableStateFlow(true)
 
@@ -34,5 +34,18 @@ class TeacherClassDetailViewModel @Inject constructor(
 
     fun getStudentAttendances(classSessionId: String): Flow<List<StudentAttendance>> {
         return attendanceService.observeStudentAttendances(classSessionId)
+    }
+
+    fun saveAttendances(classSessionId: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            isSaving.value = true
+
+            try {
+                attendanceService.saveAttendances(classSessionId)
+                onSuccess()
+            } finally {
+                isSaving.value = false
+            }
+        }
     }
 }
