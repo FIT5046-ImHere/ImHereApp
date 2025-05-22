@@ -2,33 +2,65 @@ package com.example.imhere.pages.create_class
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.imhere.model.ClassSessionRecurrence
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassDetailsForm(
     modifier: Modifier = Modifier,
-    viewModel: ClassCreationViewModel = hiltViewModel()
+    viewModel: ClassCreationViewModel = hiltViewModel(),
+    navController: NavHostController = rememberNavController()
 ) {
+    val classSessions by viewModel.classSessions.collectAsState(emptyList())
+
+    LaunchedEffect(classSessions) {
+        Log.d("ClassScreen", "Fetched sessions: $classSessions")
+    }
+
     val context = LocalContext.current
-    val navController = rememberNavController()
 
     var className by remember { mutableStateOf("") }
     var unitCode by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    var recurrence by remember { mutableStateOf("") }
+    var selectedRecurrence by remember { mutableStateOf(ClassSessionRecurrence.ONCE) }
+    var recurrenceExpanded by remember { mutableStateOf(false) }
 
     var fromDate by remember { mutableStateOf("") }
     var toDate by remember { mutableStateOf("") }
@@ -58,7 +90,7 @@ fun ClassDetailsForm(
 
     fun onSubmit() {
         if (className.isBlank() || unitCode.isBlank() || location.isBlank() ||
-            recurrence.isBlank() || fromDate.isBlank() || toDate.isBlank() ||
+            fromDate.isBlank() || toDate.isBlank() ||
             startTime.isBlank() || endTime.isBlank()
         ) {
             Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
@@ -73,14 +105,14 @@ fun ClassDetailsForm(
                 name = className,
                 unitCode = unitCode,
                 location = location,
-                recurrence = recurrence,
+                recurrence = selectedRecurrence.name.uppercase(),
                 startDate = sDate,
                 endDate = eDate,
                 startTime = startTime,
                 endTime = endTime,
-                onSuccess = {
+                onSuccess = { classSession ->
                     Toast.makeText(context, "Class created successfully", Toast.LENGTH_SHORT).show()
-                    navController.popBackStack()
+                    navController.navigate("enrollment/${classSession?.id}")
                 },
                 onError = {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -117,12 +149,35 @@ fun ClassDetailsForm(
         )
 
         Spacer(modifier = Modifier.height(10.dp))
-        OutlinedTextField(
-            value = recurrence,
-            onValueChange = { recurrence = it },
-            label = { Text("Recurrence*") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        ExposedDropdownMenuBox(
+            expanded = recurrenceExpanded,
+            onExpandedChange = { recurrenceExpanded = !recurrenceExpanded }
+        ) {
+            OutlinedTextField(
+                readOnly = true,
+                value = selectedRecurrence.name.lowercase().replaceFirstChar { it.uppercase() },
+                onValueChange = {},
+                label = { Text("Recurrence*") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = recurrenceExpanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = recurrenceExpanded,
+                onDismissRequest = { recurrenceExpanded = false }
+            ) {
+                ClassSessionRecurrence.entries.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(option.name.lowercase().replaceFirstChar { it.uppercase() })
+                        },
+                        onClick = {
+                            selectedRecurrence = option
+                            recurrenceExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth()) {

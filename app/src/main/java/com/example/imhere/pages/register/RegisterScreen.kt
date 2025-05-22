@@ -3,12 +3,18 @@ package com.example.imhere.pages.register
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,16 +25,33 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
-import java.util.*
-
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.imhere.model.UserProfileType
 import com.example.imhere.ui.theme.ImHereTheme
+import java.util.Calendar
+import java.util.Locale
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController: NavHostController) {
     var name by remember { mutableStateOf("") }
@@ -37,6 +60,8 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPassword by remember { mutableStateOf("") }
     var birthDate by remember { mutableStateOf("") }
+    var selectedType by remember { mutableStateOf(UserProfileType.STUDENT) }
+    var typeExpanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val showToast = { msg: String ->
@@ -65,19 +90,18 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
                 if (bDate != null) {
                     viewModel.register(
                         email = email,
-                        type = "student",
+                        type = selectedType.name.uppercase(),
                         password = password,
                         name = name,
                         birthDate = bDate
                     ) {
                         Log.d("LoginViewModel", "Login successful for $email")
+                        navController.navigate("home")
                     }
                 }
             }
         }
-
     }
-
 
     Column(
         modifier = Modifier
@@ -87,7 +111,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 40.dp, bottom = 16.dp) // Adds padding to move the title down
+            modifier = Modifier.padding(top = 40.dp, bottom = 16.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -100,7 +124,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
                 style = MaterialTheme.typography.headlineLarge,
             )
         }
-        // Name input field
+
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
@@ -108,7 +132,6 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Email input field
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -117,7 +140,6 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
-        // Password input field
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -132,8 +154,6 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             }
         )
 
-
-        // Confirm password input field
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
@@ -148,20 +168,49 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
             }
         )
 
-        // Birth date input field (Manual input)
         OutlinedTextField(
             value = birthDate,
             onValueChange = { birthDate = it },
             label = { Text("Birth Date (dd/MM/yyyy)") },
             modifier = Modifier.fillMaxWidth()
         )
+
+        ExposedDropdownMenuBox(
+            expanded = typeExpanded,
+            onExpandedChange = { typeExpanded = !typeExpanded }
+        ) {
+            OutlinedTextField(
+                readOnly = true,
+                value = selectedType.name.lowercase().replaceFirstChar { it.uppercase() },
+                onValueChange = {},
+                label = { Text("User Type") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = typeExpanded,
+                onDismissRequest = { typeExpanded = false }
+            ) {
+                UserProfileType.entries.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                        onClick = {
+                            selectedType = type
+                            typeExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = { onRegister() },
             enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(48.dp),
-            ) {
+        ) {
             Text("Register", fontSize = 18.sp)
         }
     }

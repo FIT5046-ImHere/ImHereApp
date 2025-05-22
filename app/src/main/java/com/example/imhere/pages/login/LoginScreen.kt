@@ -1,5 +1,6 @@
 package com.example.imhere.pages.login
 
+import GoogleSignInButton
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -51,6 +52,12 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavH
 
     fun onLogin() {
         viewModel.login(email, password) {
+            navController.navigate("home")
+        }
+    }
+
+    fun onGoogleLogin(idToken: String) {
+        viewModel.signInWithGoogle(idToken) {
             navController.navigate("home")
         }
     }
@@ -122,6 +129,14 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavH
                     modifier = Modifier
                         .clickable { /* no action yet */ }
                         .padding(top = 8.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                GoogleSignInButton(
+                    onIdTokenReceived = {
+                        onGoogleLogin(it)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
