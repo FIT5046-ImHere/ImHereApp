@@ -89,6 +89,8 @@ dependencies {
     //scan QR code
     implementation(libs.zxing.android.embedded)
 
+    implementation(libs.play.services.auth)
+
     //retofit dependencies
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -104,4 +106,3 @@ dependencies {
     implementation (libs.play.services.auth.v2070)
 
 }
-
