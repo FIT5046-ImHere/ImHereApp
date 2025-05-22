@@ -152,11 +152,11 @@ fun ClassesScreen(navController: NavHostController) {
 @Composable
 fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
     val professorName = when (classItem.teacherId) {
-        "teacher1" -> "Dr. Venessa Fring"
-        "teacher2" -> "Dr. Michael Carter"
-        "teacher3" -> "Dr. Samantha Lee"
-        "teacher4" -> "Dr. Robert Hayes"
-        "teacher5" -> "Dr. Emily Watson"
+        "teacher1" -> "Venessa Fring"
+        "teacher2" -> "Michael Carter"
+        "teacher3" -> "Samantha Lee"
+        "teacher4" -> "Robert Hayes"
+        "teacher5" -> "Emily Watson"
         else -> "Unknown"
     }
 
@@ -173,36 +173,57 @@ fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "${classItem.name}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${classItem.unitCode}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             Text(
-                text = "${classItem.name} - ${classItem.unitCode}",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "Professor: $professorName",
+                text = "Prof $professorName",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Time: ${
-                    SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(classItem.startDateTime)
-                } - ${
-                    SimpleDateFormat("HH:mm", Locale.getDefault()).format(classItem.endDateTime)
+                text = "${
+                    SimpleDateFormat(
+                        "MMM dd, yyyy",
+                        Locale.getDefault()
+                    ).format(classItem.startDateTime)
                 }",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(
-                text = "Location: ${classItem.location}",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "Recurrence: ${classItem.recurrence.name.lowercase().replaceFirstChar { it.titlecase() }}",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "${
+                        SimpleDateFormat("HH:mm", Locale.getDefault()).format(classItem.startDateTime)
+                    } - ${
+                        SimpleDateFormat("HH:mm", Locale.getDefault()).format(classItem.endDateTime)
+                    }",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = classItem.location,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
