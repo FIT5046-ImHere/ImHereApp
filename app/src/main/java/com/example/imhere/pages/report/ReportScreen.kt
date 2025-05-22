@@ -2,6 +2,7 @@ package com.example.imhere.pages.report
 
 import android.app.DatePickerDialog
 import android.os.Build
+import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -41,14 +42,17 @@ fun ReportPage(
     navController: NavHostController
 ) {
 
+    LaunchedEffect(Unit) {
+        Log.d("ASS", "ASS")
+        viewModel.applyFilters()
+    }
+
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-    val attendances = viewModel.attendances
 
     // Chart selection state
     var chartType by remember { mutableStateOf(ChartToggleType.PIE) }
