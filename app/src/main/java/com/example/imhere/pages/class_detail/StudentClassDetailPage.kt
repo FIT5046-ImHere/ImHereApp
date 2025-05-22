@@ -218,7 +218,7 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
                         contents?.let { scannedClassId ->
                             viewModel.markAttendance(
                                 classSessionId = scannedClassId,
-                                password = scannedClassId, // 如果 QR code 就是密码，传进去；否则你要改这逻辑
+                                password = scannedClassId,
                                 onSuccess = {
                                     scannedResult = scannedClassId
                                     attendanceStatus = "Present"
@@ -263,9 +263,10 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
                             setPrompt("Scan QR Code")
                             setBeepEnabled(true)
                             setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                            captureActivity = CaptureActivity::class.java
+                            captureActivity = CustomScannerActivity::class.java //
                         }
                         qrLauncher.launch(integrator.createScanIntent())
+
                     },
                     enabled = canScan && attendanceStatus == null,
                     modifier = Modifier.fillMaxWidth(),
