@@ -7,6 +7,8 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+
+
 android {
     namespace = "com.example.imhere"
     compileSdk = 35
@@ -102,7 +104,7 @@ dependencies {
     // Play Services Auth (to grab an OAuth2 token)
     implementation (libs.play.services.auth)
 
-    implementation ("com.google.firebase:firebase-auth-ktx:22.1.1")
+    implementation ("com.google.firebase:firebase-auth-ktx:23.2.1")
     implementation (libs.play.services.auth.v2070)
 
 }

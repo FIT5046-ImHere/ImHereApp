@@ -11,6 +11,7 @@ import com.example.imhere.fetchAccessToken
 import com.example.imhere.makeCalendarApi
 import com.example.imhere.model.ClassSession
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.api.Context
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
