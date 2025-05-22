@@ -40,14 +40,18 @@ class ClassSessionServiceImpl @Inject constructor(
         }
     }
 
-    override suspend fun createClassSession(classSession: ClassSession) {
-        // Use the ID if it exists, or let Firestore generate one
+    override suspend fun createClassSession(classSession: ClassSession): ClassSession {
         val docRef = if (classSession.id != null) {
             collection.document(classSession.id)
         } else {
             collection.document()
         }
-        docRef.set(classSession).await()
+
+        val finalClassSession = classSession.copy(id = docRef.id)
+
+        docRef.set(finalClassSession).await()
+
+        return finalClassSession
     }
 
     override suspend fun deleteClassSession(classSessionId: String) {

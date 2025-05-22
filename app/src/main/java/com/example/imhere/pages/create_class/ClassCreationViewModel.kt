@@ -52,7 +52,7 @@ class ClassCreationViewModel @Inject constructor(
         endDate: Date,
         startTime: String,
         endTime: String,
-        onSuccess: () -> Unit,
+        onSuccess: (ClassSession?) -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
@@ -69,8 +69,8 @@ class ClassCreationViewModel @Inject constructor(
                     startDateTime = startDateTime,
                     endDateTime = endDateTime
                 )
-                classSessionService.createClassSession(classSession)
-                onSuccess()
+                val classSesh = classSessionService.createClassSession(classSession)
+                onSuccess(classSesh)
             } catch (e: Exception) {
                 onError(e.localizedMessage ?: "Failed to create class")
             } finally {

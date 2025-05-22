@@ -8,6 +8,6 @@ interface ClassSessionService {
         teacherId: String? = null
     ): List<ClassSession>
     suspend fun getClassById(classSessionId: String): ClassSession?
-    suspend fun createClassSession(classSession: ClassSession)
+    suspend fun createClassSession(classSession: ClassSession): ClassSession
     suspend fun deleteClassSession(classSessionId: String)
 }
