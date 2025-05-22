@@ -38,7 +38,7 @@ import java.util.Date
 @Composable
 fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewModel(), classInfo: ClassSession, navController: NavHostController) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
-    var attendanceStatus by remember { mutableStateOf<String?>(null) }
+    val attendanceStatus by remember { mutableStateOf<String?>(null) }
     var scannedResult by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
@@ -216,8 +216,9 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
                     if (result.resultCode == Activity.RESULT_OK) {
                         val contents = result.data?.getStringExtra("SCAN_RESULT")
                         contents?.let { scannedClassId ->
-                            markAttendance(
-                                classId = scannedClassId,
+                            viewModel.markAttendance(
+                                classSessionId = scannedClassId,
+                                password = scannedClassId, // 如果 QR code 就是密码，传进去；否则你要改这逻辑
                                 onSuccess = {
                                     scannedResult = scannedClassId
                                     attendanceStatus = "Present"
@@ -227,6 +228,7 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
                                 }
                             )
                         }
+
                     }
                 }
 
@@ -313,30 +315,30 @@ fun StudentClassDetailPage(viewModel: StudentClassDetailViewModel = hiltViewMode
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-    val user = FirebaseAuth.getInstance().currentUser
-    val db = FirebaseFirestore.getInstance()
-
-    if (user != null) {
-        val userId = user.uid
-        val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-
-        val attendance = hashMapOf(
-            "userId" to userId,
-            "classId" to classId,
-            "date" to today,
-            "status" to "present"
-        )
-
-        db.collection("attendances")
-            .add(attendance)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onError(e.localizedMessage ?: "Error saving attendance") }
-    } else {
-        onError("User not logged in.")
-    }
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+//    val user = FirebaseAuth.getInstance().currentUser
+//    val db = FirebaseFirestore.getInstance()
+//
+//    if (user != null) {
+//        val userId = user.uid
+//        val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+//
+//        val attendance = hashMapOf(
+//            "userId" to userId,
+//            "classId" to classId,
+//            "date" to today,
+//            "status" to "present"
+//        )
+//
+//        db.collection("attendances")
+//            .add(attendance)
+//            .addOnSuccessListener { onSuccess() }
+//            .addOnFailureListener { e -> onError(e.localizedMessage ?: "Error saving attendance") }
+//    } else {
+//        onError("User not logged in.")
+//    }
+//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
