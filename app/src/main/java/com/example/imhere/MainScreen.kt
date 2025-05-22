@@ -24,7 +24,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.pages.class_detail.ClassDetailScreen
 import com.example.imhere.pages.class_detail.StudentClassDetailPage
+import com.example.imhere.pages.class_detail.TeacherClassDetailPage
 import com.example.imhere.pages.create_class.ClassDetailsForm
 import com.example.imhere.pages.enrollment.EnrollmentScreen
 import com.example.imhere.pages.home.HomePage
@@ -111,21 +113,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 EnrollmentScreen(navController = navController, classSessionId = classSessionId)
             }
 
-            composable("studentClasses/{classSessionId}") { backStackEntry ->
+            composable("classes/{classSessionId}") { backStackEntry ->
                 val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
-                val sampleClass = ClassSession(
-                    id = "class001",
-                    name = "Mathematics 101",
-                    location = "Room A-101",
-                    unitCode = "FIT5046",
-                    teacherId = "teacher001",
-                    recurrence = ClassSessionRecurrence.WEEKLY,
-                    startDateTime = Date(),
-                    endDateTime = Date()
-                )
-                StudentClassDetailPage(
+                ClassDetailScreen(
                     navController = navController,
-                    classInfo = sampleClass,
                     classSessionId = classSessionId
                 )
             }
