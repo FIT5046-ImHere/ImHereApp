@@ -23,6 +23,8 @@ class EnrollmentServiceImpl @Inject constructor(
             timestamp = Date()
         )
 
+        // TODO: call for event creation
+
         val docId = "${studentId}_$classSessionId"
         collection.document(docId).set(enrollment).await()
 

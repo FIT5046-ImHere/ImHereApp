@@ -7,6 +7,9 @@
         android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!--    adding internet features to access Google Cal -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MainApp"
         android:allowBackup="true"
