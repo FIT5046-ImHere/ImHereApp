@@ -75,7 +75,6 @@ class EnrollmentViewModel @Inject constructor(
                 studentIds = selectedIds.value.toList(),
                 classSessionId = classSessionId
             )
-            # The
 
             // get class session
             if (enrollments != null) {

@@ -18,6 +18,8 @@ fun GoogleSignInButton(
     val context = LocalContext.current
 
     // Google Sign-In Options
+    // TODO: NOTE to ZIO, the REQUEST ID token for my google calendar api is :
+    // 482684834489-p50fskjgsii7jjpbgn8hvac68h254shv.apps.googleusercontent.com
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(context.getString(R.string.default_web_client_id))
         .requestEmail()
