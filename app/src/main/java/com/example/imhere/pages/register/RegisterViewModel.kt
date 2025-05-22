@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.model.UserProfile
+import com.example.imhere.model.UserProfileType
 import com.example.imhere.model.service.AccountService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -37,11 +38,11 @@ class RegisterViewModel @Inject constructor(
                 accountService.signUp(email, password)
                 val uid = accountService.currentUserId
 
-                // Create Firestore user profile
                 accountService.createUserProfile(uid, UserProfile(
                     uid,
                     name,
-                    type,
+                    email,
+                    type = UserProfileType.valueOf(type),
                     birthDate
                 ))
 

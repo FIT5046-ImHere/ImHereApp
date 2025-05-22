@@ -8,13 +8,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.mock_data.AttendanceMockData
 import com.example.imhere.model.service.AccountService
+import com.example.imhere.model.service.AttendanceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val attendanceService: AttendanceService
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
@@ -41,6 +43,17 @@ class LoginViewModel @Inject constructor(
                 errorMessage = e.localizedMessage ?: "Login failed"
             } finally {
                 isLoading = false
+            }
+        }
+    }
+
+    fun signInWithGoogle(idToken: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                accountService.signInWithGoogle(idToken)
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("Auth", "Google Sign-In failed", e)
             }
         }
     }

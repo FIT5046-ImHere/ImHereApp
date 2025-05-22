@@ -1,9 +1,7 @@
 package com.example.imhere.di
 
-import com.example.imhere.model.service.AccountService
-import com.example.imhere.model.service.ClassSessionService
-import com.example.imhere.model.service.impl.AccountServiceImpl
-import com.example.imhere.model.service.impl.ClassSessionServiceImpl
+import com.example.imhere.model.service.*
+import com.example.imhere.model.service.impl.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -15,6 +13,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
     @Provides
     @Singleton
     fun provideAccountService(
@@ -27,4 +26,22 @@ object AppModule {
     fun provideClassSessionService(
         firestore: FirebaseFirestore
     ): ClassSessionService = ClassSessionServiceImpl(firestore)
+
+    @Provides
+    @Singleton
+    fun provideAttendanceService(
+        firestore: FirebaseFirestore
+    ): AttendanceService = AttendanceServiceImpl(firestore)
+
+    @Provides
+    @Singleton
+    fun provideEnrollmentService(
+        firestore: FirebaseFirestore
+    ): EnrollmentService = EnrollmentServiceImpl(firestore)
+
+    @Provides
+    @Singleton
+    fun provideStudentService(
+        firestore: FirebaseFirestore
+    ): StudentService = StudentServiceImpl(firestore)
 }

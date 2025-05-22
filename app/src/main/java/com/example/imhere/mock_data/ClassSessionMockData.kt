@@ -24,6 +24,7 @@ object ClassSessionMockData {
         }.time
 
         ClassSession(
+            teacherId = UUID.randomUUID().toString(),
             id = index.toString(),
             name = "Session ${index + 1}",
             location = "Room ${100 + index}",

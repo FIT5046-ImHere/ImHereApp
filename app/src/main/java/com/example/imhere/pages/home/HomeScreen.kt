@@ -3,6 +3,7 @@ package com.example.imhere.pages.home
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -85,18 +86,29 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
                )
           )
           items(classes) { classItem ->
-               NextClassCard(classItem = classItem)
+               NextClassCard(
+                    classItem = classItem,
+                    onClick = {
+                         navController.navigate("classes/2TCEkYHevGiH2Ij1pa11")
+                    }
+               )
           }
      }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NextClassCard(classItem: Class, modifier: Modifier = Modifier) {
+fun NextClassCard(classItem: Class, modifier: Modifier = Modifier, onClick: (() -> Unit) = {}) {
      Card(
           modifier = modifier
                .fillMaxWidth()
-               .padding(vertical = 4.dp),
+               .padding(vertical = 4.dp)
+               .clickable {
+                    if (onClick != null) {
+                         onClick()
+                    }
+               }
+          ,
           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
      ) {

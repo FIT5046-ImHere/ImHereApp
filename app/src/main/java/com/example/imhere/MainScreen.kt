@@ -1,6 +1,7 @@
 package com.example.imhere
 
-import ProfileScreen
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -20,9 +21,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
-import com.example.imhere.pages.create_class.ClassDetailsForm
+import com.example.imhere.pages.classes.ClassesScreen
+import com.example.imhere.pages.enrollment.EnrollmentScreen
 import com.example.imhere.pages.home.HomePage
 import com.example.imhere.pages.report.ReportPage
+import com.example.imhere.pages.profile.ProfileScreen
+import com.example.imhere.pages.class_detail.ClassDetailScreen
+
 import com.example.imhere.pages.login.LoginScreen
 import com.example.imhere.pages.register.RegisterScreen
 import com.example.imhere.ui.theme.Blue1
@@ -38,6 +43,7 @@ val navItems = listOf(
     NavItem("Login", Icons.Default.Person, "login")
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
@@ -91,9 +97,22 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
-            composable("schedules") { ClassDetailsForm() }
+            composable("schedules") { ClassesScreen(navController = navController) }
             composable("report") { ReportPage(navController = navController) }
             composable("profile") { ProfileScreen(navController = navController) }
+
+            composable("enrollment/{classSessionId}") { backStackEntry ->
+                val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
+                EnrollmentScreen(navController = navController, classSessionId = classSessionId)
+            }
+
+            composable("classes/{classSessionId}") { backStackEntry ->
+                val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
+                ClassDetailScreen(
+                    navController = navController,
+                    classSessionId = classSessionId
+                )
+            }
 
             // Auth screens
             composable("login") { LoginScreen(navController = navController) }
