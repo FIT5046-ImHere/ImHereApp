@@ -99,7 +99,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
             composable("schedules") { ClassesScreen(navController = navController) }
-            composable("report") { ReportPage() }
+            composable("report") { ReportPage(navController = navController) }
             composable("profile") { ProfileScreen(navController = navController) }
 
             composable("enrollment/{classSessionId}") { backStackEntry ->

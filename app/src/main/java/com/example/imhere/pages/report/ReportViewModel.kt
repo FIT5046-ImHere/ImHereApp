@@ -15,12 +15,15 @@ import com.example.imhere.mock_data.SelfAttendanceMockData
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
 import com.example.imhere.model.UserProfile
+import com.example.imhere.model.UserProfileType
 import com.example.imhere.model.service.AccountService
+import com.example.imhere.model.service.AttendanceService
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
@@ -40,7 +43,9 @@ enum class ChartType { PIE, BAR }
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class ReportViewModel @Inject constructor(
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val attendanceService: AttendanceService,
+
 ) : ViewModel() {
 
     // region — Profile & Permissions
@@ -64,12 +69,19 @@ class ReportViewModel @Inject constructor(
      * Attendance records scoped by role:
      * Teachers see all; students see only their own.
      */
-    val attendances: List<Attendance>
-        get() = if (profile?.type == "teacher") allAttendances else selfAttendances
+
+
+    var attendances by mutableStateOf<List<Attendance>>(emptyList())
+        private set
+//    val attendances: List<Attendance>
+//        get() = if (profile?.type == UserProfileType.TEACHER) allAttendances else selfAttendances
+
 
     init {
         Log.d("ReportViewModel", attendances.toString())
     }
+
+
     // endregion
 
     // region — Filters
@@ -88,10 +100,31 @@ class ReportViewModel @Inject constructor(
 
     // endregion
 
+    fun applyFilters() {
+        Log.d("ASSHOLE","ASSHOLE")
+        viewModelScope.launch{
+            Log.d("ASSHOLE","ASSHOLE")
+
+            val studentId = if (profile?.type == UserProfileType.STUDENT) profile!!.uid else null
+            val teacherId = if (profile?.type == UserProfileType.TEACHER) profile!!.uid else null
+            Log.d("BITCH","BITCH")
+
+            val hey = attendanceService.getAttendances(
+                studentId = studentId,
+                teacherId = teacherId,
+//                classSessionId = TODO(),
+//                startDate = TODO(),
+//                endDate = TODO(),
+            )
+            attendances = hey
+            Log.d("FETCHHH", hey.toString())
+        }
+    }
+
     // region — Class Sessions for Dropdown
     /** Distinct session IDs available, based on user role. */
     val classIds by derivedStateOf {
-        if (profile?.type == "teacher") {
+        if (profile?.type == UserProfileType.TEACHER) {
             ClassSessionMockData.classSessions.mapNotNull { it.id }
         } else {
             selfAttendances.map { it.classSessionId }

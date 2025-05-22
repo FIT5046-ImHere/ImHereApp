@@ -1,5 +1,6 @@
 package com.example.imhere.model.service.impl
 
+import android.util.Log
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
 import com.example.imhere.model.StudentAttendance
@@ -117,25 +118,28 @@ class AttendanceServiceImpl @Inject constructor(
         startDate: Date?,
         endDate: Date?
     ): List<Attendance> {
-        var query = collection as com.google.firebase.firestore.Query
+        var query = classSessionCollection
 
-        if (studentId != null) {
-            query = query.whereEqualTo("studentId", studentId)
-        }
-        if (teacherId != null) {
-            query = query.whereEqualTo("teacherId", teacherId)
-        }
-        if (classSessionId != null) {
-            query = query.whereEqualTo("classSessionId", classSessionId)
-        }
-        if (startDate != null) {
-            query = query.whereGreaterThanOrEqualTo("dateTime", startDate)
-        }
-        if (endDate != null) {
-            query = query.whereLessThanOrEqualTo("dateTime", endDate)
-        }
+//        if (studentId != null) {
+//            query = query.whereEqualTo("studentId", studentId)
+//        }
+//        if (teacherId != null) {
+//            query = query.whereEqualTo("teacherId", teacherId)
+//        }
+//        if (classSessionId != null) {
+//            query = query.whereEqualTo("classSessionId", classSessionId)
+//        }
+//        if (startDate != null) {
+//            query = query.whereGreaterThanOrEqualTo("dateTime", startDate)
+//        }
+//        if (endDate != null) {
+//            query = query.whereLessThanOrEqualTo("dateTime", endDate)
+//        }
+
+        Log.d("NSYNC", "NSYNC")
 
         val snapshot = query.get().await()
+        Log.d("DOCCUUUU", snapshot.documents.toString())
         return snapshot.documents.mapNotNull { it.toObject(Attendance::class.java) }
     }
 
