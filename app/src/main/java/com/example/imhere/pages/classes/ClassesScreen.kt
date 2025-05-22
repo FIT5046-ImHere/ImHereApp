@@ -27,25 +27,24 @@ fun ClassesScreen(navController: NavHostController) {
     ) {
         item {
             Text(
-                text = "Schedules",
+                "Schedules",
                 style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
             /*
             Text(
-            "Your Report",
+            "Your Classes:",
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(bottom = 8.dp)
             )
             */
+
         }
         item {
             Text(
-                text = "Your Classes:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                "Your Classes:",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
         val classes = listOf(
@@ -54,60 +53,60 @@ fun ClassesScreen(navController: NavHostController) {
                 name = "Mathematics 101",
                 location = "Room A-101",
                 unitCode = "MAT101",
-                teacherId = "teacher1",
+                teacherId = "teacher1", // Prof. Smith
                 recurrence = ClassSessionRecurrence.WEEKLY,
-                startDateTime = getFutureDate(hours = 2),
-                endDateTime = getFutureDate(hours = 3)
+                startDateTime = createDate(2025, Calendar.MAY, 23, 12, 0),
+                endDateTime = createDate(2025, Calendar.MAY, 23, 14, 0)
             ),
             ClassSession(
-                id = "3",
+                id = "2",
                 name = "Chemistry 301",
                 location = "Lab C-105",
                 unitCode = "CHE301",
-                teacherId = "teacher2",
+                teacherId = "teacher2", // Prof. Jones
                 recurrence = ClassSessionRecurrence.ONCE,
-                startDateTime = getFutureDate(days = 2, hours = 4),
-                endDateTime = getFutureDate(days = 2, hours = 5)
+                startDateTime = createDate(2025, Calendar.MAY, 23, 14, 0),
+                endDateTime = createDate(2025, Calendar.MAY, 23, 16, 0)
             ),
             ClassSession(
-                id = "4",
+                id = "3",
                 name = "Computer Science 101",
                 location = "Room D-201",
                 unitCode = "CS101",
-                teacherId = "teacher2",
+                teacherId = "teacher2", // Prof. Jones
                 recurrence = ClassSessionRecurrence.WEEKLY,
-                startDateTime = getFutureDate(days = 3, hours = 2),
-                endDateTime = getFutureDate(days = 3, hours = 3)
+                startDateTime = createDate(2025, Calendar.MAY, 24, 12, 0),
+                endDateTime = createDate(2025, Calendar.MAY, 24, 14, 0)
             ),
             ClassSession(
-                id = "5",
+                id = "4",
                 name = "Biology 201",
                 location = "Lab E-302",
                 unitCode = "BIO201",
-                teacherId = "teacher3",
+                teacherId = "teacher3", // Prof. Brown
                 recurrence = ClassSessionRecurrence.BIWEEKLY,
-                startDateTime = getFutureDate(days = 4, hours = 1),
-                endDateTime = getFutureDate(days = 4, hours = 2)
+                startDateTime = createDate(2025, Calendar.MAY, 24, 14, 0),
+                endDateTime = createDate(2025, Calendar.MAY, 24, 16, 0)
             ),
             ClassSession(
-                id = "6",
+                id = "5",
                 name = "History 101",
                 location = "Room F-101",
                 unitCode = "HIS101",
-                teacherId = "teacher3",
+                teacherId = "teacher3", // Prof. Brown
                 recurrence = ClassSessionRecurrence.MONTHLY,
-                startDateTime = getFutureDate(days = 5, hours = 3),
-                endDateTime = getFutureDate(days = 5, hours = 4)
+                startDateTime = createDate(2025, Calendar.MAY, 25, 12, 0),
+                endDateTime = createDate(2025, Calendar.MAY, 25, 14, 0)
             ),
             ClassSession(
-                id = "7",
+                id = "6",
                 name = "Literature 202",
                 location = "Room G-204",
                 unitCode = "LIT202",
-                teacherId = "teacher4",
+                teacherId = "teacher1", // Prof. Smith
                 recurrence = ClassSessionRecurrence.WEEKLY,
-                startDateTime = getFutureDate(days = 6, hours = 2),
-                endDateTime = getFutureDate(days = 6, hours = 3)
+                startDateTime = createDate(2025, Calendar.MAY, 25, 14, 0),
+                endDateTime = createDate(2025, Calendar.MAY, 25, 16, 0)
             )
         )
         items(classes) { classItem ->
@@ -118,6 +117,14 @@ fun ClassesScreen(navController: NavHostController) {
 
 @Composable
 fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
+    // Mock professor names based on teacherId
+    val professorName = when (classItem.teacherId) {
+        "teacher1" -> "Prof. Smith"
+        "teacher2" -> "Prof. Jones"
+        "teacher3" -> "Prof. Brown"
+        else -> "Unknown"
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -132,10 +139,15 @@ fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = classItem.name,
+                text = "${classItem.name} - ${classItem.unitCode}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Professor: $professorName",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Time: ${
@@ -160,10 +172,10 @@ fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
     }
 }
 
-// Helper to create future dates
-private fun getFutureDate(days: Int = 0, hours: Int = 0): Date {
+// Helper to create specific dates
+private fun createDate(year: Int, month: Int, day: Int, hour: Int, minute: Int): Date {
     val calendar = Calendar.getInstance()
-    calendar.add(Calendar.DAY_OF_MONTH, days)
-    calendar.add(Calendar.HOUR_OF_DAY, hours)
+    calendar.set(year, month, day, hour, minute, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
     return calendar.time
 }
