@@ -1,4 +1,6 @@
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.CalendarApi
@@ -27,6 +29,7 @@ class AttendanceViewModel : ViewModel() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun scheduleSessionReminder(session: ClassSession) {
         val api = calendarApi ?: return
         viewModelScope.launch {
