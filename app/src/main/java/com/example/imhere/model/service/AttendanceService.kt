@@ -21,6 +21,7 @@ interface AttendanceService {
     suspend fun startTakingAttendances(
         classSessionId: String
     ): String
+    suspend fun saveAttendances(classSessionId: String)
     suspend fun getAttendances(
         studentId: String?,
         teacherId: String?,

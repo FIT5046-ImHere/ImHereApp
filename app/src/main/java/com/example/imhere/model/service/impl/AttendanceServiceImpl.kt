@@ -19,8 +19,12 @@ class AttendanceServiceImpl @Inject constructor(
     firestore: FirebaseFirestore
 ) : AttendanceService {
 
+
     private val collection = firestore.collection("attendances")
+    private val classSessionCollection = firestore.collection("classSessions")
+    private val enrollmentCollection = firestore.collection("enrollments")
     private val userCollection = firestore.collection("users")
+    private val batch = firestore.batch()
 
     override suspend fun startTakingAttendances(classSessionId: String): String {
         val password = UUID.randomUUID().toString()
@@ -53,8 +57,59 @@ class AttendanceServiceImpl @Inject constructor(
             status = status
         )
 
-        collection.add(attendance).await()
+        val currentAttendanceRef = classSessionCollection
+            .document(classSessionId)
+            .collection("currentAttendances")
+            .document(studentId)
+
+        currentAttendanceRef.set(attendance).await()
+
         return attendance
+    }
+
+    override suspend fun saveAttendances(classSessionId: String) {
+        val currentAttendancesRef = classSessionCollection
+            .document(classSessionId)
+            .collection("currentAttendances")
+
+        val snapshot = currentAttendancesRef.get().await()
+
+        val presentStudentIds = mutableSetOf<String>()
+
+        snapshot.documents.forEach { doc ->
+            val attendance = doc.toObject(Attendance::class.java)
+            if (attendance != null) {
+                presentStudentIds.add(attendance.studentId)
+                val newDoc = collection.document()
+                batch.set(newDoc, attendance)
+                batch.delete(doc.reference)
+            }
+        }
+
+        // Fetch all enrolled students
+        val enrollmentSnapshot = enrollmentCollection
+            .whereEqualTo("classSessionId", classSessionId)
+            .get()
+            .await()
+
+        val now = Date()
+
+        enrollmentSnapshot.documents.forEach { doc ->
+            val studentId = doc.getString("studentId") ?: return@forEach
+            if (!presentStudentIds.contains(studentId)) {
+                val absentAttendance = Attendance(
+                    studentId = studentId,
+                    teacherId = "", // Unknown teacher context here
+                    classSessionId = classSessionId,
+                    dateTime = now,
+                    status = AttendanceStatus.ABSENT
+                )
+                val newDoc = collection.document()
+                batch.set(newDoc, absentAttendance)
+            }
+        }
+
+        batch.commit().await()
     }
 
     override suspend fun getAttendances(
@@ -146,10 +201,11 @@ class AttendanceServiceImpl @Inject constructor(
     override fun observeStudentAttendances(
         classSessionId: String
     ): Flow<List<StudentAttendance>> = callbackFlow {
-        val attendanceQuery = collection
-            .whereEqualTo("classSessionId", classSessionId)
+        val currentAttendanceRef = classSessionCollection
+            .document(classSessionId)
+            .collection("currentAttendances")
 
-        val listenerRegistration = attendanceQuery.addSnapshotListener { snapshot, error ->
+        val listenerRegistration = currentAttendanceRef.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 close(error)
                 return@addSnapshotListener
