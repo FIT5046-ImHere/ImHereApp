@@ -1,6 +1,5 @@
 package com.example.imhere
 
-import ProfileScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
@@ -22,22 +21,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.di.AccountServiceEntryPoint
-import com.example.imhere.model.ClassSession
-import com.example.imhere.model.ClassSessionRecurrence
-import com.example.imhere.pages.class_detail.ClassDetailScreen
-import com.example.imhere.pages.class_detail.StudentClassDetailPage
-import com.example.imhere.pages.class_detail.TeacherClassDetailPage
-import com.example.imhere.pages.create_class.ClassDetailsForm
+import com.example.imhere.pages.classes.ClassesScreen
 import com.example.imhere.pages.enrollment.EnrollmentScreen
 import com.example.imhere.pages.home.HomePage
 import com.example.imhere.pages.report.ReportPage
+import com.example.imhere.pages.profile.ProfileScreen
+import com.example.imhere.pages.class_detail.ClassDetailScreen
+
 import com.example.imhere.pages.login.LoginScreen
 import com.example.imhere.pages.register.RegisterScreen
 import com.example.imhere.ui.theme.Blue1
 import dagger.hilt.android.EntryPointAccessors
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.Date
 
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
 
@@ -104,7 +98,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
-            composable("schedules") { ClassDetailsForm(navController = navController) }
+            composable("schedules") { ClassesScreen(navController = navController) }
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen(navController = navController) }
 

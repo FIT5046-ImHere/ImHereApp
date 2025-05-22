@@ -18,8 +18,6 @@ import javax.inject.Inject
 class AttendanceServiceImpl @Inject constructor(
     firestore: FirebaseFirestore
 ) : AttendanceService {
-
-
     private val collection = firestore.collection("attendances")
     private val classSessionCollection = firestore.collection("classSessions")
     private val enrollmentCollection = firestore.collection("enrollments")

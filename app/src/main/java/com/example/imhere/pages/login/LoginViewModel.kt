@@ -46,4 +46,15 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
+    fun signInWithGoogle(idToken: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                accountService.signInWithGoogle(idToken)
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("Auth", "Google Sign-In failed", e)
+            }
+        }
+    }
 }

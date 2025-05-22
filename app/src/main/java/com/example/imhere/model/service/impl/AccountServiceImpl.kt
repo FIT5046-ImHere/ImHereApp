@@ -5,6 +5,7 @@ import com.example.imhere.model.UserProfile
 import com.example.imhere.model.UserProfileType
 import com.example.imhere.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.channels.awaitClose
@@ -114,5 +115,23 @@ class AccountServiceImpl @Inject constructor(
             null
         }
 
+    }
+
+    override suspend fun signInWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val authResult = auth.signInWithCredential(credential).await()
+        val user = authResult.user ?: throw Exception("Google sign-in failed")
+
+        val userDoc = firestore.collection("users").document(user.uid).get().await()
+        if (!userDoc.exists()) {
+            val profile = UserProfile(
+                uid = user.uid,
+                name = user.displayName ?: "",
+                email = user.email ?: "",
+                type = UserProfileType.STUDENT, // Default to student; adjust if needed
+                birthDate = Date() // Placeholder, update if needed
+            )
+            createUserProfile(user.uid, profile)
+        }
     }
 }
