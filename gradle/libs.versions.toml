@@ -20,6 +20,7 @@ navigationDynamicFeaturesFragment = "2.9.0"
 navigationFragment = "2.9.0"
 navigationTesting = "2.9.0"
 navigationUi = "2.9.0"
+playServicesAuth = "21.3.0"
 transition = "1.2.0"
 composeMaterial3 = "1.5.0-beta01"
 navigationCommonAndroid = "2.9.0"
@@ -61,6 +62,7 @@ material3 = { module = "androidx.compose.material3:material3", version.ref = "ma
 androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
 
 
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing" }
 
 

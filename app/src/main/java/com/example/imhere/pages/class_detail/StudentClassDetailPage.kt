@@ -27,6 +27,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.ui.components.BackButton
+import com.example.imhere.ui.components.PageHeader
 import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.CaptureActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -71,11 +73,7 @@ fun StudentClassDetailPage(
         ) {
 
             // --- Header ---
-            Text(
-                text = "Class Detail",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            PageHeader(navController = navController, title = "Class Detail")
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
