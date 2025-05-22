@@ -30,15 +30,22 @@ import javax.inject.Inject
 
 enum class ChartType { PIE, BAR }
 
+
+/**
+ * ViewModel for the Report screen.
+ * - Loads the current user profile to scope data (teacher vs. student).
+ * - Maintains date‐range and session‐ID filters.
+ * - Exposes reactive chart data (pie & line) based on filtered attendances.
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class ReportViewModel @Inject constructor(
     private val accountService: AccountService
-//    private val _records: MutableStateFlow<List<Attendance>> = MutableStateFlow<List<Attendance>>(AttendanceMockData.attendanceList),
-//    val records: StateFlow<List<Attendance>> = _records.asStateFlow()
 ) : ViewModel() {
+
+    // region — Profile & Permissions
+    /** Current user profile; determines which attendance list to use. */
     var profile by mutableStateOf<UserProfile?>(null)
-    var selectedSessionId by mutableStateOf<String?>(null)
 
     init {
         viewModelScope.launch {
@@ -47,80 +54,86 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
+    // endregion
 
+    // region — Raw Attendance Sources
     private val selfAttendances = SelfAttendanceMockData.attendanceList
     private val allAttendances = AttendanceMockData.attendanceList
 
+    /**
+     * Attendance records scoped by role:
+     * Teachers see all; students see only their own.
+     */
     val attendances: List<Attendance>
         get() = if (profile?.type == "teacher") allAttendances else selfAttendances
 
     init {
         Log.d("ReportViewModel", attendances.toString())
     }
+    // endregion
 
-    /**
-     * 2a. Distinct classSessionIds from current attendances
-     */
-    /**
-     * 2a. Distinct classSessionIds based on user type: teachers see all class IDs, students see only their own
-     */
+    // region — Filters
+
+    /** Currently selected session ID to filter by, or `null` to disable session‐filtering. */
+    var selectedSessionId by mutableStateOf<String?>(null)
+
+    // Date range state (default: last 1 month)
+    /** Start of date range filter (inclusive). */
+    var startDate by mutableStateOf(LocalDate.now().minusMonths(1))
+
+    /** End of date range filter (inclusive). */
+    var endDate by mutableStateOf(LocalDate.now())
+
+    private val dateFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+
+    // endregion
+
+    // region — Class Sessions for Dropdown
+    /** Distinct session IDs available, based on user role. */
     val classIds by derivedStateOf {
         if (profile?.type == "teacher") {
-            // Teacher: all class sessions from mock data
             ClassSessionMockData.classSessions.mapNotNull { it.id }
         } else {
-            // Student: only sessions in their own attendance
             selfAttendances.map { it.classSessionId }
         }.distinct()
     }
 
-
-    /**
-     * 2b. Link classSessionIds to actual ClassSession info for display
-     */
-    /**
-     * 2b. Link classSessionIds to actual ClassSession info for display
-     */
+    /** Full ClassSession objects matching [classIds]. */
     val classSessions by derivedStateOf {
-        if (profile?.type == "teacher") {
-            // Teacher: show all class session details
-            ClassSessionMockData.classSessions
-        } else {
-            // Student: filter to only their class sessions
-            ClassSessionMockData.classSessions
-//            ClassSessionMockData.classSessions.filter { session ->
-//                session.id != null && classIds.contains(session.id)
-//            }
-        }
+        ClassSessionMockData.classSessions.filter { it.id in classIds }
     }
+    // endregion
 
-
-    init {
-        Log.d("ReportViewModel ClassSession", classSessions.toString())
-    }
-
-    // Date range state (default: last 1 month)
-    var startDate by mutableStateOf(LocalDate.now().minusMonths(1))
-    var endDate by mutableStateOf(LocalDate.now())
-
-    // 3. Filtered attendances recomputed when startDate or endDate changes
+    // region — Filtered & Aggregated Data
+    /**
+     * Attendances filtered by:
+     *  - date between [startDate] and [endDate], and
+     *  - matching [selectedSessionId] if non‐null.
+     */
     val filteredAttendances by derivedStateOf {
-        attendances.filter { attendance ->
-            val recordDate = attendance.dateTime.toInstant()
+        attendances.filter { record ->
+            val date = record.dateTime
+                .toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
-            (!recordDate.isBefore(startDate) && !recordDate.isAfter(endDate)) && (selectedSessionId == null || attendance.classSessionId == selectedSessionId)
+
+            val inDateRange = !date.isBefore(startDate) && !date.isAfter(endDate)
+            val matchesSession = selectedSessionId?.let { record.classSessionId == it } ?: true
+            inDateRange && matchesSession
         }
     }
 
-    // 4. Aggregated counts by status, updates when filteredAttendances changes
+    /**
+     * Counts of each AttendanceStatus after filtering.
+     * E.g. { PRESENT → 5, LATE → 2, ABSENT → 0 }.
+     */
     val aggregatedAttendances by derivedStateOf {
-        filteredAttendances
-            .groupingBy { it.status }
-            .eachCount()
+        filteredAttendances.groupingBy { it.status }.eachCount()
     }
+    // endregion
 
-    // 5. Pie entries for chart, updates when aggregatedAttendances changes
+    // region — Pie Chart Data
+    /** Generates PieEntry list from [aggregatedAttendances]. */
     val pieEntries by derivedStateOf {
         aggregatedAttendances.map { (status, count) ->
             PieEntry(
@@ -129,13 +142,11 @@ class ReportViewModel @Inject constructor(
             )
         }
     }
-    private val dateFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+    // endregion
 
-    //Line chart data
-    /**
-     * A sorted list of all dates (as strings) in the current range.
-     * We’ll use these as our X‐axis labels.
-     */
+    // region — Line Chart Data
+
+    /** X‐axis labels: distinct dates in [filteredAttendances], formatted. */
     val dateLabels: List<String> by derivedStateOf {
         // get all record dates, dedupe, sort
         filteredAttendances
@@ -146,8 +157,8 @@ class ReportViewModel @Inject constructor(
     }
 
     /**
-     * Builds a LineDataSet per AttendanceStatus,
-     * mapping each date label index to the count on that day.
+     * Builds one LineDataSet per AttendanceStatus.
+     * Each dataset contains (x = day index, y = count for that status on that date).
      */
     fun makeLineDataSets(): List<LineDataSet> {
         // Group records by LocalDate
@@ -176,7 +187,6 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
-
-
+    // endregion
 
 }
