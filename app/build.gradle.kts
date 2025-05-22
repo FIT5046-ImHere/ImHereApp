@@ -7,8 +7,6 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
-
-
 android {
     namespace = "com.example.imhere"
     compileSdk = 35
