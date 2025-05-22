@@ -56,7 +56,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
           item {
                Text(
                     text = "Welcome Josh!",
-//                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                )
