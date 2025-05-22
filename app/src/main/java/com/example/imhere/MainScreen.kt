@@ -111,7 +111,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 EnrollmentScreen(navController = navController, classSessionId = classSessionId)
             }
 
-            composable("classes/{classSessionId}") { backStackEntry ->
+            composable("studentClasses/{classSessionId}") { backStackEntry ->
                 val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
                 val sampleClass = ClassSession(
                     id = "class001",

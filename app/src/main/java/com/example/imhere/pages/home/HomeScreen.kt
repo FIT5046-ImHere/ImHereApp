@@ -89,7 +89,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
                NextClassCard(
                     classItem = classItem,
                     onClick = {
-                         navController.navigate("classes/2TCEkYHevGiH2Ij1pa11")
+                         navController.navigate("studentClasses/2TCEkYHevGiH2Ij1pa11")
                     }
                )
           }
