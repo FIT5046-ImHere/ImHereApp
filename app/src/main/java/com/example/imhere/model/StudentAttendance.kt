@@ -1,7 +1,7 @@
 package com.example.imhere.model
 
-class StudentAttendance (
-    studentName: String = "",
-    attendanceId: String = "",
-    status: AttendanceStatus = AttendanceStatus.PRESENT
+data class StudentAttendance (
+    val studentName: String = "",
+    val attendanceId: String = "",
+    val status: AttendanceStatus = AttendanceStatus.PRESENT
 )
