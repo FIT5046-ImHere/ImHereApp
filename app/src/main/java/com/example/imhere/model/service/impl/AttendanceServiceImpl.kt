@@ -7,6 +7,7 @@ import com.example.imhere.model.StudentAttendance
 import com.example.imhere.model.service.AttendanceService
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -118,28 +119,25 @@ class AttendanceServiceImpl @Inject constructor(
         startDate: Date?,
         endDate: Date?
     ): List<Attendance> {
-        var query = classSessionCollection
+        var query: Query = classSessionCollection
 
-//        if (studentId != null) {
-//            query = query.whereEqualTo("studentId", studentId)
-//        }
-//        if (teacherId != null) {
-//            query = query.whereEqualTo("teacherId", teacherId)
-//        }
-//        if (classSessionId != null) {
-//            query = query.whereEqualTo("classSessionId", classSessionId)
-//        }
-//        if (startDate != null) {
-//            query = query.whereGreaterThanOrEqualTo("dateTime", startDate)
-//        }
-//        if (endDate != null) {
-//            query = query.whereLessThanOrEqualTo("dateTime", endDate)
-//        }
-
-        Log.d("NSYNC", "NSYNC")
+        if (studentId != null) {
+            query = query.whereEqualTo("studentId", studentId)
+        }
+        if (teacherId != null) {
+            query = query.whereEqualTo("teacherId", teacherId)
+        }
+        if (classSessionId != null) {
+            query = query.whereEqualTo("classSessionId", classSessionId)
+        }
+        if (startDate != null) {
+            query = query.whereGreaterThanOrEqualTo("dateTime", startDate)
+        }
+        if (endDate != null) {
+            query = query.whereLessThanOrEqualTo("dateTime", endDate)
+        }
 
         val snapshot = query.get().await()
-        Log.d("DOCCUUUU", snapshot.documents.toString())
         return snapshot.documents.mapNotNull { it.toObject(Attendance::class.java) }
     }
 
