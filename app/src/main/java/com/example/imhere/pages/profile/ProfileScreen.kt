@@ -108,6 +108,25 @@ fun ProfileScreen(
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.error
                 )
+                Button(
+                    onClick = {
+                        isLoading = true
+                        viewModel.signOut {
+                            navController.navigate("login") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
+                            isLoading = false
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Log Out", fontSize = 16.sp)
+                }
             }
         }
     }
