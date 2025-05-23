@@ -6,8 +6,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.model.Attendance
@@ -23,7 +21,6 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -33,15 +30,6 @@ import java.util.Date
 import javax.inject.Inject
 
 
-enum class ChartType { PIE, BAR }
-
-
-/**
- * ViewModel for the Report screen.
- * - Loads the current user profile to scope data (teacher vs. student).
- * - Maintains date‐range and session‐ID filters.
- * - Exposes reactive chart data (pie & line) based on filtered attendances.
- */
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class ReportViewModel @Inject constructor(
@@ -50,8 +38,6 @@ class ReportViewModel @Inject constructor(
     private val classSessionService: ClassSessionService
 ) : ViewModel() {
 
-    // region — Profile & Permissions
-    /** Current user profile; determines which attendance list to use. */
     var profile by mutableStateOf<UserProfile?>(null)
 
     init {
@@ -61,9 +47,7 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
-    // endregion
 
-    // region — Raw Attendance Sources
     var classSessions by mutableStateOf<List<ClassSession>>(emptyList())
 
     init {
@@ -88,38 +72,14 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    // 1. Define a Compose Color for each status
-    private val statusComposeColorMap: Map<AttendanceStatus, Color> = mapOf(
-        AttendanceStatus.PRESENT to Color(0xFF4CAF50),  // a nice green
-        AttendanceStatus.LATE to Color(0xFFFFEB3B),  // a bright yellow
-        AttendanceStatus.ABSENT to Color(0xFFF44336)   // a material red
-    )
-
-    /**
-     * Attendance records scoped by role:
-     * Teachers see theirs; students see only their own.
-     */
-
-    var attendances by mutableStateOf<List<Attendance>>(emptyList())
+    private var attendances by mutableStateOf<List<Attendance>>(emptyList())
         private set
 
-    // endregion
-
-    // region — Filters
-
-    /** Currently selected session ID to filter by, or `null` to disable session‐filtering. */
     var selectedSessionId by mutableStateOf<String?>(null)
-
-    // Date range state (default: last 1 month)
-    /** Start of date range filter (inclusive). */
-    var startDate by mutableStateOf(LocalDate.now().minusMonths(1))
-
-    /** End of date range filter (inclusive). */
-    var endDate by mutableStateOf(LocalDate.now())
+    var startDate by mutableStateOf<LocalDate>(LocalDate.now().minusMonths(1))
+    var endDate by mutableStateOf<LocalDate>(LocalDate.now())
 
     private val dateFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
-
-    // endregion
 
     fun applyFilters() {
         viewModelScope.launch {
@@ -138,43 +98,10 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    // region — Class Sessions for Dropdown
-    /** Distinct session IDs available, based on user role. */
-
-    /** Full ClassSession objects matching [classIds]. */
-    // endregion
-
-    // region — Filtered & Aggregated Data
-    /**
-     * Attendances filtered by:
-     *  - date between [startDate] and [endDate], and
-     *  - matching [selectedSessionId] if non‐null.
-     */
-//    val filteredAttendances by derivedStateOf {
-//        attendances.filter { record ->
-//            val date = record.dateTime
-//                .toInstant()
-//                .atZone(ZoneId.systemDefault())
-//                .toLocalDate()
-//
-//            val inDateRange = !date.isBefore(startDate) && !date.isAfter(endDate)
-//            val matchesSession = selectedSessionId?.let { record.classSessionId == it } ?: true
-//            inDateRange && matchesSession
-//        }
-//    }
-
-    /**
-     * Counts of each AttendanceStatus after filtering.
-     * E.g. { PRESENT → 5, LATE → 2, ABSENT → 0 }.
-     */
-    val aggregatedAttendances by derivedStateOf {
+    private val aggregatedAttendances by derivedStateOf {
         attendances.sortedBy { it.status }.groupingBy { it.status }.eachCount()
     }
 
-    // endregion
-
-    // region — Pie Chart Data
-    /** Generates PieEntry list from [aggregatedAttendances]. */
     val pieEntries by derivedStateOf {
         listOf(
             PieEntry(
@@ -191,16 +118,8 @@ class ReportViewModel @Inject constructor(
             ),
         )
     }
-    val pieEnts by derivedStateOf {
 
-    }
-    // endregion
-
-    // region — Line Chart Data
-
-    /** X‐axis labels: distinct dates in [filteredAttendances], formatted. */
     val dateLabels: List<String> by derivedStateOf {
-        // get all record dates, dedupe, sort
         attendances
             .map { it.dateTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
             .distinct()
@@ -208,12 +127,7 @@ class ReportViewModel @Inject constructor(
             .map { it.format(dateFormatter) }
     }
 
-    /**
-     * Builds one LineDataSet per AttendanceStatus.
-     * Each dataset contains (x = day index, y = count for that status on that date).
-     */
     fun makeLineDataSets(): List<LineDataSet> {
-        // Group records by LocalDate
         val groupedByDate = attendances.groupBy { attendance ->
             attendance.dateTime.toInstant()
                 .atZone(ZoneId.systemDefault())
@@ -238,8 +152,6 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
-    // endregion
-
 }
 
 
