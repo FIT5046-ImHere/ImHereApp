@@ -2,14 +2,17 @@ package com.example.imhere.model.service.impl
 
 import com.example.imhere.model.AuthUser
 import com.example.imhere.model.UserProfile
+import com.example.imhere.model.UserProfileType
 import com.example.imhere.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import javax.inject.Inject
 
 class AccountServiceImpl @Inject constructor(
@@ -32,9 +35,22 @@ class AccountServiceImpl @Inject constructor(
                 val docRef = firestore.collection("users").document(uid)
                 val listener = docRef.addSnapshotListener { snapshot, error ->
                     if (error == null && snapshot != null && snapshot.exists()) {
-                        val profile = snapshot.toObject(UserProfile::class.java)
-                        if (profile != null) {
+                        val data = snapshot.data
+
+                        if (data != null) {
+                            val typeString = data["type"] as? String ?: "student"
+                            val profile = UserProfile(
+                                uid = data["uid"] as? String ?: "",
+                                name = data["name"] as? String ?: "",
+                                email = data["email"] as? String ?: "",
+                                type = UserProfileType.fromValue(typeString),
+                                birthDate = (data["birthDate"] as? com.google.firebase.Timestamp)
+                                    ?.toDate() ?: Date()
+                            )
+
                             trySend(profile)
+                        } else {
+                            trySend(null)
                         }
                     } else {
                         trySend(null)
@@ -99,5 +115,23 @@ class AccountServiceImpl @Inject constructor(
             null
         }
 
+    }
+
+    override suspend fun signInWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val authResult = auth.signInWithCredential(credential).await()
+        val user = authResult.user ?: throw Exception("Google sign-in failed")
+
+        val userDoc = firestore.collection("users").document(user.uid).get().await()
+        if (!userDoc.exists()) {
+            val profile = UserProfile(
+                uid = user.uid,
+                name = user.displayName ?: "",
+                email = user.email ?: "",
+                type = UserProfileType.STUDENT, // Default to student; adjust if needed
+                birthDate = Date() // Placeholder, update if needed
+            )
+            createUserProfile(user.uid, profile)
+        }
     }
 }

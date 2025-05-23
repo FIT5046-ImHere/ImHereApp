@@ -1,62 +1,50 @@
 package com.example.imhere.pages.class_detail
 
-
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.imhere.model.ClassSession
+import com.example.imhere.model.StudentAttendance
 import com.example.imhere.model.service.AccountService
 import com.example.imhere.model.service.AttendanceService
+import com.example.imhere.model.service.ClassSessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import androidx.compose.runtime.State
-import com.example.imhere.model.service.StudentService
-
-
-data class StudentAttendance(
-    val name: String,
-    val status: String
-)
-
 
 @HiltViewModel
-open class TeacherClassDetailViewModel @Inject constructor(
+class TeacherClassDetailViewModel @Inject constructor(
     private val attendanceService: AttendanceService,
-    private val accountService: AccountService,
-    private val studentService: StudentService
-
+    private val classSessionService: ClassSessionService
 ) : ViewModel() {
+    val isSaving = MutableStateFlow(false)
+    val classSession = MutableStateFlow<ClassSession?>(null)
+    val isLoading = MutableStateFlow(true)
 
-    private val _students = mutableStateOf<List<StudentAttendance>>(emptyList())
-    val students: State<List<StudentAttendance>> = _students
-
-    fun loadAttendance(classSessionId: String) {
+    fun loadClassSession(classSessionId: String) {
         viewModelScope.launch {
+            isLoading.value = true
+            val session = classSessionService.getClassById(classSessionId)
+            classSession.value = session
+            isLoading.value = false
+        }
+    }
+
+    fun getStudentAttendances(classSessionId: String): Flow<List<StudentAttendance>> {
+        return attendanceService.observeStudentAttendances(classSessionId)
+    }
+
+    fun saveAttendances(classSessionId: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            isSaving.value = true
+
             try {
-                // 🔍 Query only by classSessionId (others null)
-                val attendances = attendanceService.getAttendances(
-                    studentId = null,
-                    teacherId = null,
-                    classSessionId = classSessionId,
-                    startDate = null,
-                    endDate = null
-                )
-                val studentAttendanceList = attendances.map { attendance ->
-                    val profile = try {
-                        accountService.fetchUserProfile(attendance.studentId)
-                    } catch (e: Exception) {
-                        null
-                    }
-
-                    StudentAttendance(
-                        name = profile?.name ?: "Unknown",
-                        status = attendance.status.name.lowercase()
-                    )
-                }
-
-                _students.value = studentAttendanceList
-            } catch (e: Exception) {
-                _students.value = emptyList()
+                attendanceService.saveAttendances(classSessionId)
+                onSuccess()
+            } finally {
+                isSaving.value = false
             }
         }
     }

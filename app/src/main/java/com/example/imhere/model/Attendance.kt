@@ -5,7 +5,10 @@ import java.util.Date
 enum class AttendanceStatus(val value: String) {
     PRESENT("present"),
     LATE("late"),
-    ABSENT("absent")
+    ABSENT("absent"),
+    present("present"),
+    late("late"),
+    absent("absent")
 }
 
 data class Attendance(

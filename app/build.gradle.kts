@@ -89,4 +89,6 @@ dependencies {
     //scan QR code
     implementation(libs.zxing.android.embedded)
 
+    implementation(libs.play.services.auth)
+
 }
