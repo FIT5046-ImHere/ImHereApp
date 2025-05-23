@@ -1,6 +1,7 @@
 package com.example.imhere.pages.class_detail
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,8 @@ fun ClassDetailScreen(
     val profile = viewModel.profile
     val userType = profile?.type
 
+    Log.d("USER TYPE", profile.toString())
+
     when (userType) {
         null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -49,14 +52,15 @@ fun ClassDetailScreen(
                 classInfo = sampleClass,
                 classSessionId = classSessionId
             )
+//            TeacherClassDetailPage(
+//                navController = navController,
+//                classSessionId = classSessionId
+//            )
         }
 
         UserProfileType.TEACHER -> {
             TeacherClassDetailPage(
                 navController = navController,
-                className = "FIT5046 - Mobile Computing",
-                startTime = "09:00 AM",
-                endTime = "10:00 AM",
                 classSessionId = classSessionId
             )
         }

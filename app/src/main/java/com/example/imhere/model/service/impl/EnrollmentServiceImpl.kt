@@ -33,28 +33,40 @@ class EnrollmentServiceImpl @Inject constructor(
         studentIds: List<String>,
         classSessionId: String
     ): List<Enrollment>? {
-        if (studentIds.isEmpty()) return emptyList()
-
         return try {
             val now = Date()
+            val existingEnrollments = getEnrollments(null, classSessionId)
+            val existingStudentIds = existingEnrollments.map { it.studentId }.toSet()
+            val newStudentIds = studentIds.toSet()
 
-            val enrollments = studentIds.map { studentId ->
+            val toAdd = newStudentIds - existingStudentIds
+            val toRemove = existingStudentIds - newStudentIds
+
+            val batch = collection.firestore.batch()
+
+            val newEnrollments = toAdd.map { studentId ->
                 val enrollment = Enrollment(
                     studentId = studentId,
                     classSessionId = classSessionId,
                     timestamp = now
                 )
-                val docRef = collection.document()
+                val docId = "${studentId}_$classSessionId"
+                val docRef = collection.document(docId)
                 batch.set(docRef, enrollment)
                 enrollment
             }
 
-            // Also update the class session's document to include these student IDs
+            toRemove.forEach { studentId ->
+                val docId = "${studentId}_$classSessionId"
+                val docRef = collection.document(docId)
+                batch.delete(docRef)
+            }
+
             val classSessionRef = classSessionCollection.document(classSessionId)
-            batch.update(classSessionRef, "studentIds", FieldValue.arrayUnion(*studentIds.toTypedArray()))
+            batch.update(classSessionRef, "studentIds", newStudentIds.toList())
 
             batch.commit().await()
-            enrollments
+            (existingEnrollments.filter { it.studentId in newStudentIds } + newEnrollments)
         } catch (e: Exception) {
             e.printStackTrace()
             null

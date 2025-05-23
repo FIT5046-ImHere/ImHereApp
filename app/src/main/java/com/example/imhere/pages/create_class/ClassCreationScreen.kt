@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.ui.components.PageHeader
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -112,7 +113,7 @@ fun ClassDetailsForm(
                 endTime = endTime,
                 onSuccess = { classSession ->
                     Toast.makeText(context, "Class created successfully", Toast.LENGTH_SHORT).show()
-                    navController.navigate("enrollment/${classSession?.id}")
+                    navController.navigate("enrollments/${classSession?.id}")
                 },
                 onError = {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -122,7 +123,7 @@ fun ClassDetailsForm(
     }
 
     Column(modifier = modifier.padding(16.dp)) {
-        Text("Create a Class", style = MaterialTheme.typography.headlineLarge)
+        PageHeader(navController, title = "Create a Class")
         Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(

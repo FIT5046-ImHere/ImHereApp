@@ -1,5 +1,6 @@
 package com.example.imhere.pages.classes
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,14 +11,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.ui.components.PageHeader
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun ClassesScreen(navController: NavHostController) {
+fun ClassesScreen(
+    navController: NavHostController,
+    viewModel:ClassesViewModel = hiltViewModel()
+) {
+    val classes = viewModel.classSessions
+    val isLoading = viewModel.isLoading
+
+    if (isLoading) {
+        CircularProgressIndicator()
+    } else {
+        // Render LazyColumn with classes
+    }
+
     val classInstances = listOf(
         ClassSession(
             id = "0",
@@ -95,7 +110,7 @@ fun ClassesScreen(navController: NavHostController) {
         add(Calendar.DAY_OF_WEEK, 14)
     }
 
-    val grouped = classInstances.groupBy {
+    val grouped = classes.groupBy {
         val classCal = Calendar.getInstance().apply { time = it.startDateTime }
         when {
             isSameDay(classCal, calendarToday) -> "Today"
@@ -106,51 +121,72 @@ fun ClassesScreen(navController: NavHostController) {
         }
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.Start
+            .padding(16.dp)
     ) {
-        item {
-            Text(
-                text = "Schedules",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
-            )
-        }
 
-        grouped.forEach { (header, classes) ->
-            item {
+//        PageHeader(navController, title = "Your Classes") {
+//        }
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = header,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(vertical = 12.dp)
+                    text = "Your Classes",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
                 )
+                Button(onClick = {
+                    navController.navigate("createClass")
+                }) {
+                    Text("+ Create")
+                }
             }
-            items(classes) { classItem ->
-                ClassCard(classItem = classItem)
-            }
-        }
 
-        if (classInstances.isEmpty()) {
-            item {
-                Text(
-                    text = "No upcoming classes",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
+        ) {
+            grouped.forEach { (header, classes) ->
+                item {
+                    Text(
+                        text = header,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
+                }
+                items(classes) { classItem ->
+                    ClassCard(
+                        classItem = classItem,
+                        onClick = {
+                            navController.navigate("classes/${classItem.id}")
+                        }
+                        )
+                }
+            }
+
+            if (classInstances.isEmpty()) {
+                item {
+                    Text(
+                        text = "No upcoming classes",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
+fun ClassCard(
+    classItem: ClassSession,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit) = {}
+) {
     val professorName = when (classItem.teacherId) {
         "teacher1" -> "Venessa Fring"
         "teacher2" -> "Michael Carter"
@@ -163,7 +199,13 @@ fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable {
+                if (onClick != null) {
+                    onClick()
+                }
+            }
+        ,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
@@ -196,12 +238,10 @@ fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${
-                    SimpleDateFormat(
-                        "MMM dd, yyyy",
-                        Locale.getDefault()
-                    ).format(classItem.startDateTime)
-                }",
+                text = SimpleDateFormat(
+                    "MMM dd, yyyy",
+                    Locale.getDefault()
+                ).format(classItem.startDateTime),
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )

@@ -38,17 +38,7 @@ class AccountServiceImpl @Inject constructor(
                         val data = snapshot.data
 
                         if (data != null) {
-                            val typeString = data["type"] as? String ?: "student"
-                            val profile = UserProfile(
-                                uid = data["uid"] as? String ?: "",
-                                name = data["name"] as? String ?: "",
-                                email = data["email"] as? String ?: "",
-                                type = UserProfileType.fromValue(typeString),
-                                birthDate = (data["birthDate"] as? com.google.firebase.Timestamp)
-                                    ?.toDate() ?: Date()
-                            )
-
-                            trySend(profile)
+                            trySend(snapshot.toObject(UserProfile::class.java))
                         } else {
                             trySend(null)
                         }

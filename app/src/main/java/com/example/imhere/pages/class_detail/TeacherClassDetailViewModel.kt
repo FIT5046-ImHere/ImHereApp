@@ -36,6 +36,17 @@ class TeacherClassDetailViewModel @Inject constructor(
         return attendanceService.observeStudentAttendances(classSessionId)
     }
 
+    fun startTakingAttendances(classSessionId: String, onSuccess: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val password = attendanceService.startTakingAttendances(classSessionId)
+                onSuccess(password)
+            } finally {
+
+            }
+        }
+    }
+
     fun saveAttendances(classSessionId: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             isSaving.value = true
