@@ -36,6 +36,7 @@ class ClassSessionServiceImpl @Inject constructor(
     override suspend fun getClassById(classSessionId: String): ClassSession? {
         val snapshot = collection.document(classSessionId).get().await()
         return if (snapshot.exists()) {
+            Log.d("SESSION", snapshot.toObject(ClassSession::class.java).toString())
             snapshot.toObject(ClassSession::class.java)
         } else {
             null

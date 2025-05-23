@@ -30,7 +30,7 @@ class AttendanceServiceImpl @Inject constructor(
         val password = UUID.randomUUID().toString()
         val passwordExpireAt = Date(System.currentTimeMillis() + 15 * 60 * 1000) // expires in 15 mins
 
-        val classSessionRef = collection.document(classSessionId)
+        val classSessionRef = classSessionCollection.document(classSessionId)
 
         classSessionRef.update(
             mapOf(
@@ -68,6 +68,15 @@ class AttendanceServiceImpl @Inject constructor(
     }
 
     override suspend fun saveAttendances(classSessionId: String) {
+        val classSessionRef = classSessionCollection.document(classSessionId)
+
+        classSessionRef.update(
+            mapOf(
+                "attendancePassword" to null,
+                "passwordExpireAt" to null
+            )
+        ).await()
+
         val currentAttendancesRef = classSessionCollection
             .document(classSessionId)
             .collection("currentAttendances")
