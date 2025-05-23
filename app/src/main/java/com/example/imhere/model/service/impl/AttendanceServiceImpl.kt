@@ -140,7 +140,7 @@ class AttendanceServiceImpl @Inject constructor(
         startDate: Date?,
         endDate: Date?
     ): List<Attendance> {
-        var query: Query = classSessionCollection
+        var query: Query = collection
 
         if (studentId != null) {
             query = query.whereEqualTo("studentId", studentId)

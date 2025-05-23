@@ -41,6 +41,7 @@ val navItems = listOf(
     NavItem("Schedules", Icons.Default.DateRange, "schedules"),
     NavItem("Report", Icons.Default.Build, "report"),
     NavItem("Profile", Icons.Default.Person, "profile"),
+    NavItem("Login", Icons.Default.Person, "login")
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -50,8 +51,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current.applicationContext
-    val bottomNavRoutes = navItems
-        .map { it.route }
 
     val accountService = remember {
         EntryPointAccessors.fromApplication(
@@ -66,7 +65,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            if (isLoggedIn && currentRoute in bottomNavRoutes) {
+            if (isLoggedIn && currentRoute !in listOf("login", "register")) {
                 NavigationBar {
                     navItems.filterNot { it.route == "login" }.forEach { item ->
                         NavigationBarItem(
@@ -75,7 +74,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             selected = currentRoute == item.route,
                             onClick = {
                                 navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
                                     launchSingleTop = true
@@ -100,7 +99,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             // Logged-in screens
             composable("home") { HomePage(navController = navController) }
             composable("schedules") { ClassesScreen(navController = navController) }
-            composable("report") { ReportPage() }
+            composable("report") { ReportPage(navController = navController) }
             composable("profile") { ProfileScreen(navController = navController) }
             composable("createClass") { ClassDetailsForm(navController = navController) }
 
