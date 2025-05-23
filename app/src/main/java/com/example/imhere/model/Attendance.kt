@@ -6,9 +6,9 @@ enum class AttendanceStatus(val value: String) {
     PRESENT("present"),
     LATE("late"),
     ABSENT("absent"),
-    present("present"),
-    late("late"),
-    absent("absent")
+//    present("present"),
+//    late("late"),
+//    absent("absent")
 }
 
 data class Attendance(
