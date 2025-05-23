@@ -19,14 +19,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
 import androidx.compose.ui.Alignment
+import com.example.imhere.ui.components.PageHeader
 
 @Composable
 fun EnrollmentScreen(
-    navController: NavController,
+    navController: NavHostController,
     classSessionId: String,
     viewModel: EnrollmentViewModel = hiltViewModel()
 ) {
@@ -39,7 +40,7 @@ fun EnrollmentScreen(
         .fillMaxSize()
         .padding(24.dp)) {
 
-        Text("Select Students", style = MaterialTheme.typography.titleLarge)
+        PageHeader(navController, title = "Enroll to Class")
 
         Spacer(modifier = Modifier.height(16.dp))
 

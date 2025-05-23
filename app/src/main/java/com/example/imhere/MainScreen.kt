@@ -102,7 +102,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen(navController = navController) }
 
-            composable("enrollment/{classSessionId}") { backStackEntry ->
+            composable("enrollments/{classSessionId}") { backStackEntry ->
                 val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
                 EnrollmentScreen(navController = navController, classSessionId = classSessionId)
             }

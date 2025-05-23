@@ -105,7 +105,20 @@ fun TeacherClassDetailPage(
         if (classSession != null) {
 
             // --- Class Info Header ---
-            PageHeader(navController, title = "Class Detail")
+            PageHeader(navController, title = "Class Detail") {
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        text = "Class Detail",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Button(onClick = {
+                        navController.navigate("enrollments/$classSessionId")
+                    }) {
+                        Text("Enroll Students")
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(

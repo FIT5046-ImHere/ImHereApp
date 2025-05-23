@@ -112,7 +112,7 @@ fun ClassDetailsForm(
                 endTime = endTime,
                 onSuccess = { classSession ->
                     Toast.makeText(context, "Class created successfully", Toast.LENGTH_SHORT).show()
-                    navController.navigate("enrollment/${classSession?.id}")
+                    navController.navigate("enrollments/${classSession?.id}")
                 },
                 onError = {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
