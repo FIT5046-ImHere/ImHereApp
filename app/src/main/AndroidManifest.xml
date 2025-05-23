@@ -25,6 +25,14 @@
             android:screenOrientation="portrait"
             tools:replace="android:screenOrientation" />
 
+        <activity android:name=".pages.class_detail.CustomScannerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <meta-data
+                android:name="zxing.capture_layout"
+                android:resource="@layout/custom_scanner_layout" />
+        </activity>
+
+
 
         <activity
             android:name=".MainActivity"

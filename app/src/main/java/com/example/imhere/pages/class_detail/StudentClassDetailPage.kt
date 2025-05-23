@@ -45,7 +45,7 @@ fun StudentClassDetailPage(
     navController: NavHostController
 ) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
-    var attendanceStatus by remember { mutableStateOf<String?>(null) }
+    val attendanceStatus by remember { mutableStateOf<String?>(null) }
     var scannedResult by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
@@ -188,8 +188,9 @@ fun StudentClassDetailPage(
                     if (result.resultCode == Activity.RESULT_OK) {
                         val contents = result.data?.getStringExtra("SCAN_RESULT")
                         contents?.let { scannedClassId ->
-                            markAttendance(
-                                classId = scannedClassId,
+                            viewModel.markAttendance(
+                                classSessionId = scannedClassId,
+                                password = scannedClassId,
                                 onSuccess = {
                                     scannedResult = scannedClassId
                                     attendanceStatus = "Present"
@@ -199,6 +200,7 @@ fun StudentClassDetailPage(
                                 }
                             )
                         }
+
                     }
                 }
 
@@ -233,9 +235,10 @@ fun StudentClassDetailPage(
                             setPrompt("Scan QR Code")
                             setBeepEnabled(true)
                             setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                            captureActivity = CaptureActivity::class.java
+                            captureActivity = CustomScannerActivity::class.java //
                         }
                         qrLauncher.launch(integrator.createScanIntent())
+
                     },
                     enabled = canScan && attendanceStatus == null,
                     modifier = Modifier.fillMaxWidth(),
@@ -282,30 +285,30 @@ fun StudentClassDetailPage(
         }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-    val user = FirebaseAuth.getInstance().currentUser
-    val db = FirebaseFirestore.getInstance()
-
-    if (user != null) {
-        val userId = user.uid
-        val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-
-        val attendance = hashMapOf(
-            "userId" to userId,
-            "classId" to classId,
-            "date" to today,
-            "status" to "present"
-        )
-
-        db.collection("attendances")
-            .add(attendance)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onError(e.localizedMessage ?: "Error saving attendance") }
-    } else {
-        onError("User not logged in.")
-    }
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+//    val user = FirebaseAuth.getInstance().currentUser
+//    val db = FirebaseFirestore.getInstance()
+//
+//    if (user != null) {
+//        val userId = user.uid
+//        val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+//
+//        val attendance = hashMapOf(
+//            "userId" to userId,
+//            "classId" to classId,
+//            "date" to today,
+//            "status" to "present"
+//        )
+//
+//        db.collection("attendances")
+//            .add(attendance)
+//            .addOnSuccessListener { onSuccess() }
+//            .addOnFailureListener { e -> onError(e.localizedMessage ?: "Error saving attendance") }
+//    } else {
+//        onError("User not logged in.")
+//    }
+//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
