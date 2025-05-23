@@ -19,5 +19,6 @@ data class ClassSession(
     val startDateTime: Date = Date(),
     val endDateTime: Date = Date(),
     val attendancePassword: String? = null,
-    val passwordExpiredAt: Date = Date()
+    val passwordExpiredAt: Date = Date(),
+    val currentAttendances: List<Attendance> = emptyList()
 )

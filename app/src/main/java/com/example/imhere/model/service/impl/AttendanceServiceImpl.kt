@@ -3,6 +3,7 @@ package com.example.imhere.model.service.impl
 import android.util.Log
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
+import com.example.imhere.model.ClassSession
 import com.example.imhere.model.StudentAttendance
 import com.example.imhere.model.service.AttendanceService
 import com.google.firebase.firestore.FirebaseFirestore
@@ -121,6 +122,17 @@ class AttendanceServiceImpl @Inject constructor(
         batch.commit().await()
     }
 
+    override suspend fun getCurrentAttendances(classSessionId: String): List<Attendance> {
+        val classSessionRef = classSessionCollection.document(classSessionId)
+        val classSession = classSessionRef.get().await()
+
+        if (classSession.exists()) {
+            return classSession.toObject(ClassSession::class.java)?.currentAttendances ?: emptyList()
+        } else {
+            return emptyList()
+        }
+    }
+
     override suspend fun getAttendances(
         studentId: String?,
         teacherId: String?,
@@ -154,7 +166,7 @@ class AttendanceServiceImpl @Inject constructor(
         classSessionId: String,
         password: String
     ): Boolean {
-        val classSessionSnap = collection
+        val classSessionSnap = classSessionCollection
             .document(classSessionId)
             .get()
             .await()
@@ -162,11 +174,13 @@ class AttendanceServiceImpl @Inject constructor(
         if (!classSessionSnap.exists()) return false
 
         val storedPassword = classSessionSnap.getString("attendancePassword")
+
+        Log.d("PASSSSSSS", "$storedPassword - $password")
         val expireAt = classSessionSnap.getDate("passwordExpireAt")
 
         val now = Date()
 
-        return storedPassword == password && expireAt != null && now.before(expireAt)
+        return storedPassword == password
     }
 
     override fun observeAttendances(

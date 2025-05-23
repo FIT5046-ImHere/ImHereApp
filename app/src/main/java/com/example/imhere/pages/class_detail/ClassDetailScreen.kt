@@ -47,15 +47,15 @@ fun ClassDetailScreen(
                 startDateTime = Date(),
                 endDateTime = Date()
             )
-//            StudentClassDetailPage(
-//                navController = navController,
-//                classInfo = sampleClass,
-//                classSessionId = classSessionId
-//            )
-            TeacherClassDetailPage(
+            StudentClassDetailPage(
                 navController = navController,
+                classInfo = sampleClass,
                 classSessionId = classSessionId
             )
+//            TeacherClassDetailPage(
+//                navController = navController,
+//                classSessionId = classSessionId
+//            )
         }
 
         UserProfileType.TEACHER -> {
