@@ -16,9 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.R
+import com.example.imhere.model.service.AccountService
+import com.example.imhere.pages.classes.ClassesViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -36,7 +39,11 @@ enum class Recurrence {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
+fun HomePage(
+     modifier: Modifier = Modifier,
+     navController: NavHostController,
+     viewModel: ClassesViewModel = hiltViewModel()
+) {
      LazyColumn(
           modifier = modifier
                .fillMaxSize()
@@ -55,7 +62,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
           }
           item {
                Text(
-                    text = "Welcome Josh!",
+                    text = "Welcome ${viewModel.profile?.name}!",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)

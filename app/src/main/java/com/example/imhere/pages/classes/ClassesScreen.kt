@@ -22,7 +22,7 @@ import java.util.*
 @Composable
 fun ClassesScreen(
     navController: NavHostController,
-    viewModel: ClassesViewModel = hiltViewModel()
+    viewModel:ClassesViewModel = hiltViewModel()
 ) {
     val classes = viewModel.classSessions
     val isLoading = viewModel.isLoading
@@ -238,12 +238,10 @@ fun ClassCard(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${
-                    SimpleDateFormat(
-                        "MMM dd, yyyy",
-                        Locale.getDefault()
-                    ).format(classItem.startDateTime)
-                }",
+                text = SimpleDateFormat(
+                    "MMM dd, yyyy",
+                    Locale.getDefault()
+                ).format(classItem.startDateTime),
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
