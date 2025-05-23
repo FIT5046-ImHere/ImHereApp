@@ -1,5 +1,6 @@
 package com.example.imhere.pages.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +22,8 @@ fun ProfileScreen(
     navController: NavHostController
 ) {
     var isLoading by remember { mutableStateOf(false) }
-    val profile = viewModel.profile // Direct property access
+//    val profile = viewModel.profile // Direct property access
+    val profile = viewModel.dbProfile
 
     Column(
         modifier = modifier

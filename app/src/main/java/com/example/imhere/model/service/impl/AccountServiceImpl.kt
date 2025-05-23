@@ -1,5 +1,9 @@
 package com.example.imhere.model.service.impl
 
+import UserProfileEntity
+import android.util.Log
+import com.example.imhere.db.UserProfileRepository
+import com.example.imhere.db.toEntity
 import com.example.imhere.model.AuthUser
 import com.example.imhere.model.UserProfile
 import com.example.imhere.model.UserProfileType
@@ -8,16 +12,20 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import javax.inject.Inject
 
 class AccountServiceImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val userProfileRepository: UserProfileRepository
 ) : AccountService {
 
     override val currentUserId: String
@@ -25,6 +33,8 @@ class AccountServiceImpl @Inject constructor(
 
     override val hasUser: Boolean
         get() = auth.currentUser != null
+
+    override val dbUserProfile: Flow<List<UserProfileEntity>> = userProfileRepository.allSubjects
 
     override val currentUserProfile: Flow<UserProfile?>
         get() = callbackFlow {
@@ -35,10 +45,10 @@ class AccountServiceImpl @Inject constructor(
                 val docRef = firestore.collection("users").document(uid)
                 val listener = docRef.addSnapshotListener { snapshot, error ->
                     if (error == null && snapshot != null && snapshot.exists()) {
-                        val data = snapshot.data
-
+                        val data = snapshot.toObject(UserProfile::class.java)
                         if (data != null) {
-                            trySend(snapshot.toObject(UserProfile::class.java))
+                            trySend(data)
+                            saveToRoom(data.toEntity())
                         } else {
                             trySend(null)
                         }
@@ -53,10 +63,9 @@ class AccountServiceImpl @Inject constructor(
 
     override val currentAuthUser: Flow<AuthUser>
         get() = callbackFlow {
-            val listener =
-                FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let { AuthUser(it.uid) } ?: AuthUser())
-                }
+            val listener = FirebaseAuth.AuthStateListener { auth ->
+                trySend(auth.currentUser?.let { AuthUser(it.uid) } ?: AuthUser())
+            }
             auth.addAuthStateListener(listener)
             awaitClose { auth.removeAuthStateListener(listener) }
         }
@@ -78,33 +87,32 @@ class AccountServiceImpl @Inject constructor(
     }
 
     override suspend fun deleteAccount() {
-        auth.currentUser!!.delete().await()
+        auth.currentUser?.delete()?.await()
     }
 
     override suspend fun signOut() {
-        if (auth.currentUser!!.isAnonymous) {
-            auth.currentUser!!.delete()
+        if (auth.currentUser?.isAnonymous == true) {
+            auth.currentUser?.delete()
         }
         auth.signOut()
     }
 
     override suspend fun createUserProfile(uid: String, profile: UserProfile) {
         firestore.collection("users").document(uid).set(profile).await()
+        saveToRoom(profile.toEntity())
     }
 
     override suspend fun updateUserProfile(uid: String, profile: UserProfile) {
         firestore.collection("users").document(uid)
             .set(profile, SetOptions.merge()).await()
+        saveToRoom(profile.toEntity())
     }
 
     override suspend fun fetchUserProfile(uid: String): UserProfile? {
         val snapshot = firestore.collection("users").document(uid).get().await()
-        return if (snapshot.exists()) {
-            snapshot.toObject(UserProfile::class.java)
-        } else {
-            null
-        }
-
+        val profile = if (snapshot.exists()) snapshot.toObject(UserProfile::class.java) else null
+        profile?.let { saveToRoom(it.toEntity()) }
+        return profile
     }
 
     override suspend fun signInWithGoogle(idToken: String) {
@@ -118,10 +126,23 @@ class AccountServiceImpl @Inject constructor(
                 uid = user.uid,
                 name = user.displayName ?: "",
                 email = user.email ?: "",
-                type = UserProfileType.STUDENT, // Default to student; adjust if needed
-                birthDate = Date() // Placeholder, update if needed
+                type = UserProfileType.STUDENT,
+                birthDate = Date()
             )
             createUserProfile(user.uid, profile)
         }
     }
+
+//    private fun saveToRoom(profile: UserProfileEntity) {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            userProfileRepository.upsert(profile)
+//        }
+//    }
+    private fun saveToRoom(profile: UserProfileEntity) {
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("ROOM", "🧠 Upserting to Room: $profile")
+            userProfileRepository.upsert(profile)
+        }
+    }
+
 }

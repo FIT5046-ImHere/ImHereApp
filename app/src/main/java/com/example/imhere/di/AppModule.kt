@@ -1,5 +1,9 @@
 package com.example.imhere.di
 
+import UserProfileDAO
+import UserProfileDatabase
+import android.app.Application
+import com.example.imhere.db.UserProfileRepository
 import com.example.imhere.model.service.*
 import com.example.imhere.model.service.impl.*
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +19,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore {
@@ -27,12 +30,31 @@ object AppModule {
         return firestore
     }
 
+//    @Provides
+//    @Singleton
+//    fun provideUserProfileDatabase(app: Application): UserProfileDatabase {
+//        return UserProfileDatabase.getDatabase(app)
+//    }
+
+//    @Provides
+//    @Singleton
+//    fun provideUserProfileDAO(db: UserProfileDatabase): UserProfileDAO {
+//        return db.userProfileDAO()
+//    }
+
+    @Provides
+    @Singleton
+    fun provideUserProfileRepository(
+        app: Application
+    ): UserProfileRepository = UserProfileRepository(app)
+
     @Provides
     @Singleton
     fun provideAccountService(
         auth: FirebaseAuth,
-        firestore: FirebaseFirestore
-    ): AccountService = AccountServiceImpl(auth, firestore)
+        firestore: FirebaseFirestore,
+        userProfileRepository: UserProfileRepository
+    ): AccountService = AccountServiceImpl(auth, firestore, userProfileRepository)
 
     @Provides
     @Singleton
