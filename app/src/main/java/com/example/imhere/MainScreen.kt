@@ -1,5 +1,21 @@
 package com.example.imhere
 
+// creds for google calendar, the api key and the oauth client key?
+// writing the code for all google cal shit
+
+/* Using app authentication
+The permissions or "authority" the principal has to access data or perform operations.
+The act of authorization is carried out through code you write in your app.
+This code informs the user that the app wishes to act on their behalf and, if allowed, uses
+your app's unique credentials to obtain an access token from Google used to access data
+or perform operations.
+*/
+
+// credential type used : OAuth 2 client ID
+
+//client ID: 482684834489-p50fskjgsii7jjpbgn8hvac68h254shv.apps.googleusercontent.com
+// API Key (unrestricted): AIzaSyAeJCybbzR-qRLF6x3nCCMv-2pyFcVhEQM
+
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding

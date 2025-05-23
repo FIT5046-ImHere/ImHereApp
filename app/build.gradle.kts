@@ -96,4 +96,18 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    //retofit dependencies
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
+
+    // OkHttp (for interceptor)
+    implementation (libs.okhttp)
+
+    // Play Services Auth (to grab an OAuth2 token)
+    implementation (libs.play.services.auth)
+
+    implementation ("com.google.firebase:firebase-auth-ktx:23.2.1")
+    implementation (libs.play.services.auth.v2070)
+
 }

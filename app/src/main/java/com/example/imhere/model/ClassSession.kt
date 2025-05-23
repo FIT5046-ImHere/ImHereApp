@@ -5,7 +5,7 @@ import java.util.Date
 enum class ClassSessionRecurrence(val value: String) {
     ONCE("once"),
     WEEKLY("weekly"),
-    BIWEEKLY("biweekly"),
+//    BIWEEKLY("biweekly"),
     MONTHLY("monthly"),
 }
 
