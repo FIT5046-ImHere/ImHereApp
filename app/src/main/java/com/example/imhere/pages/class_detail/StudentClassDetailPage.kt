@@ -93,7 +93,7 @@ fun StudentClassDetailPage(
             .padding(16.dp)
     ) {
         PageHeader(navController = navController, title = "Class Detail")
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text("Class Name:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium, color = Color.DarkGray)
         Text(classSession!!.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
