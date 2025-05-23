@@ -91,7 +91,7 @@ fun ClassesScreen(
             location = "Lab C-105",
             unitCode = "CHE301",
             teacherId = "teacher5",
-            recurrence = ClassSessionRecurrence.BIWEEKLY,
+            recurrence = ClassSessionRecurrence.WEEKLY,
             startDateTime = createDate(2025, Calendar.JULY, 6, 14, 0),
             endDateTime = createDate(2025, Calendar.JULY, 6, 16, 0)
         )
