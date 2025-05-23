@@ -1,11 +1,13 @@
 package com.example.imhere.model.service.impl
 
+import android.util.Log
 import com.example.imhere.model.Attendance
 import com.example.imhere.model.AttendanceStatus
 import com.example.imhere.model.StudentAttendance
 import com.example.imhere.model.service.AttendanceService
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -117,7 +119,7 @@ class AttendanceServiceImpl @Inject constructor(
         startDate: Date?,
         endDate: Date?
     ): List<Attendance> {
-        var query = collection as com.google.firebase.firestore.Query
+        var query: Query = classSessionCollection
 
         if (studentId != null) {
             query = query.whereEqualTo("studentId", studentId)
