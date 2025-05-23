@@ -22,6 +22,9 @@ interface AttendanceService {
         classSessionId: String
     ): String
     suspend fun saveAttendances(classSessionId: String)
+
+    suspend fun getCurrentAttendances(classSessionId: String): List<Attendance>
+
     suspend fun getAttendances(
         studentId: String?,
         teacherId: String?,

@@ -47,15 +47,31 @@ class EnrollmentViewModel @Inject constructor(
     var isLoading = MutableStateFlow(false)
     var success = MutableStateFlow<List<Enrollment>?>(null)
 
-    init {
-        fetchStudents()
-    }
+//    init {
+//        fetchStudents()
+//    }
 
-    private fun fetchStudents() {
+    fun load(classSessionId: String) {
         viewModelScope.launch {
-            students.value = studentService.getStudents()
+            isLoading.value = true
+
+            val allStudents = studentService.getStudents()
+            students.value = allStudents
+
+            val enrollments = enrollmentService.getEnrollments(null, classSessionId)
+
+            val enrolledStudentIds = enrollments.map { it.studentId }.toSet()
+            selectedIds.value = enrolledStudentIds
+
+            isLoading.value = false
         }
     }
+
+//    private fun fetchStudents() {
+//        viewModelScope.launch {
+//            students.value = studentService.getStudents()
+//        }
+//    }
 
     fun toggleSelection(studentId: String) {
         val current = selectedIds.value.toMutableSet()

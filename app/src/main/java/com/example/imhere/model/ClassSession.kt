@@ -17,5 +17,8 @@ data class ClassSession(
     val teacherId: String = "",
     val recurrence: ClassSessionRecurrence = ClassSessionRecurrence.ONCE,
     val startDateTime: Date = Date(),
-    val endDateTime: Date = Date()
+    val endDateTime: Date = Date(),
+    val attendancePassword: String? = null,
+    val passwordExpiredAt: Date = Date(),
+    val currentAttendances: List<Attendance> = emptyList()
 )
