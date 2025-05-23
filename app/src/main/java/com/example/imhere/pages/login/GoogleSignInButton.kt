@@ -10,6 +10,7 @@ import com.example.imhere.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
 
 @Composable
 fun GoogleSignInButton(
@@ -23,6 +24,7 @@ fun GoogleSignInButton(
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(context.getString(R.string.default_web_client_id))
         .requestEmail()
+        .requestScopes(Scope("https://www.googleapis.com/auth/calendar"))
         .build()
 
     val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }

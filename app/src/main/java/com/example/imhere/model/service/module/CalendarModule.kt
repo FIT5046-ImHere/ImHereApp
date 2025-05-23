@@ -5,6 +5,8 @@ import android.util.Log
 import com.example.imhere.model.service.CalendarApi
 import com.example.imhere.model.service.CalendarService
 import com.example.imhere.model.service.impl.CalendarServiceImpl
+import com.google.android.gms.auth.GoogleAuthUtil
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,32 +30,35 @@ object CalendarModule {
         @ApplicationContext ctx: Context
     ): Interceptor = Interceptor { chain ->
 
-//        val acct = GoogleSignIn.getLastSignedInAccount(ctx)
-//            ?: throw IllegalStateException("Not signed in")
-//
-//        // 2. Extract the ID token (make sure you called requestIdToken(...) in your GoogleSignInOptions)
-//        val idToken = acct.idToken
-//            ?: throw IllegalStateException("No ID token available")
-//
-//        // 3. Add it as a Bearer header
-//        val authed = chain.request()
-//            .newBuilder()
-//            .addHeader("Authorization", "Bearer $idToken")
-//            .build()
-        // 1. Grab the signed-in account
-        val accessToken = runBlocking {
-            FirebaseAuth.getInstance().currentUser
-                ?.getIdToken(/* forceRefresh = */ true)
-                ?.await()
-                ?.token
-        } ?: throw IllegalStateException("No access token available")
+        val acct = GoogleSignIn.getLastSignedInAccount(ctx)
+            ?: throw IllegalStateException("Not signed in")
 
-        Log.d("Interceptor AcesssTok", accessToken)
+        val scope = "oauth2:https://www.googleapis.com/auth/calendar"
+        val accessToken = GoogleAuthUtil.getToken(ctx, acct.account!!, scope)
+        Log.d("CalendarAccessToken", accessToken)
+        // 2. Extract the ID token (make sure you called requestIdToken(...) in your GoogleSignInOptions)
+        val idToken = acct.idToken
+            ?: throw IllegalStateException("No ID token available")
 
+        // 3. Add it as a Bearer header
         val authed = chain.request()
             .newBuilder()
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
+        // 1. Grab the signed-in account
+//        val accessToken = runBlocking {
+//            FirebaseAuth.getInstance().currentUser
+//                ?.getIdToken(/* forceRefresh = */ true)
+//                ?.await()
+//                ?.token
+//        } ?: throw IllegalStateException("No access token available")
+//
+//        Log.d("Interceptor AcesssTok", accessToken)
+//
+//        val authed = chain.request()
+//            .newBuilder()
+//            .addHeader("Authorization", "Bearer $accessToken")
+//            .build()
 
         chain.proceed(authed)
     }
