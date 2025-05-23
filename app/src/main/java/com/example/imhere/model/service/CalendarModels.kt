@@ -2,7 +2,7 @@ package com.example.imhere.model.service
 
 import com.google.gson.annotations.SerializedName
 
-/** The core event you send/receive via the Calendar API */
+/** The core event send/receive via the Calendar API */
 data class CalendarEvent(
     val summary: String,
     val description: String? = null,
