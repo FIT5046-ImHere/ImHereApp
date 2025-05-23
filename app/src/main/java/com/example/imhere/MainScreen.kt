@@ -27,6 +27,7 @@ import com.example.imhere.pages.home.HomePage
 import com.example.imhere.pages.report.ReportPage
 import com.example.imhere.pages.profile.ProfileScreen
 import com.example.imhere.pages.class_detail.ClassDetailScreen
+import com.example.imhere.pages.create_class.ClassDetailsForm
 
 import com.example.imhere.pages.login.LoginScreen
 import com.example.imhere.pages.register.RegisterScreen
@@ -101,6 +102,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("schedules") { ClassesScreen(navController = navController) }
             composable("report") { ReportPage() }
             composable("profile") { ProfileScreen(navController = navController) }
+            composable("createClass") { ClassDetailsForm(navController = navController) }
 
             composable("enrollments/{classSessionId}") { backStackEntry ->
                 val classSessionId = backStackEntry.arguments?.getString("classSessionId") ?: ""
