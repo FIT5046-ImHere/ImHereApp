@@ -21,6 +21,9 @@ navigationFragment = "2.9.0"
 navigationTesting = "2.9.0"
 navigationUi = "2.9.0"
 playServicesAuth = "21.3.0"
+roomKtx = "2.7.1"
+roomRuntime = "2.7.1"
+ksp = "2.0.21-1.0.26"
 transition = "1.2.0"
 composeMaterial3 = "1.5.0-beta01"
 navigationCommonAndroid = "2.9.0"
@@ -37,6 +40,8 @@ androidx-navigation-dynamic-features-fragment = { module = "androidx.navigation:
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationFragment" }
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationTesting" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationUi" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
