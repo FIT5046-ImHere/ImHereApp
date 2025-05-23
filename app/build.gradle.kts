@@ -60,7 +60,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(libs.mpandroidchart)
+
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)
 
@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.mpandroidchart)
 
     //scan QR code
     implementation(libs.zxing.android.embedded)
