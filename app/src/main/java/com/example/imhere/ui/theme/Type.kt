@@ -28,6 +28,13 @@ val Typography = Typography(
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
+    headlineLarge = TextStyle(
+        fontFamily = PlusJakartaVariableFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        letterSpacing = 0.sp
+    ),
     labelSmall = TextStyle(
         fontFamily = PlusJakartaVariableFont,
         fontWeight = FontWeight.Medium,
