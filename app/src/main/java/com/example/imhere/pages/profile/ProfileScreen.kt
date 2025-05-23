@@ -74,16 +74,6 @@ fun ProfileScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                Button(
-                    onClick = { /* Placeholder for future Edit Profile functionality */ },
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Edit Profile", fontSize = 16.sp)
-                }
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = {
@@ -110,6 +100,25 @@ fun ProfileScreen(
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.error
                 )
+                Button(
+                    onClick = {
+                        isLoading = true
+                        viewModel.signOut {
+                            navController.navigate("login") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
+                            isLoading = false
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Log Out", fontSize = 16.sp)
+                }
             }
         }
     }

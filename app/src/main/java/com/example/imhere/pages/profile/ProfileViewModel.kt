@@ -21,6 +21,7 @@ class ProfileViewModel @Inject constructor(
     var profile by mutableStateOf<UserProfile?>(null)
     var dbProfile by mutableStateOf<UserProfileEntity?>(null)
 
+
     init {
         viewModelScope.launch {
             accountService.currentUserProfile.collect {

@@ -37,25 +37,10 @@ fun ClassDetailScreen(
         }
 
         UserProfileType.STUDENT -> {
-            val sampleClass = ClassSession(
-                id = "class001",
-                name = "Mathematics 101",
-                location = "Room A-101",
-                unitCode = "FIT5046",
-                teacherId = "teacher001",
-                recurrence = ClassSessionRecurrence.WEEKLY,
-                startDateTime = Date(),
-                endDateTime = Date()
-            )
             StudentClassDetailPage(
                 navController = navController,
-                classInfo = sampleClass,
                 classSessionId = classSessionId
             )
-//            TeacherClassDetailPage(
-//                navController = navController,
-//                classSessionId = classSessionId
-//            )
         }
 
         UserProfileType.TEACHER -> {

@@ -26,11 +26,11 @@ interface AttendanceService {
     suspend fun getCurrentAttendances(classSessionId: String): List<Attendance>
 
     suspend fun getAttendances(
-        studentId: String?,
-        teacherId: String?,
-        classSessionId: String?,
-        startDate: Date?,
-        endDate: Date?
+        studentId: String? = null,
+        teacherId: String? = null,
+        classSessionId: String? = null,
+        startDate: Date? = null,
+        endDate: Date? = null
     ): List<Attendance>
 
     fun observeAttendances(
