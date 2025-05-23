@@ -127,11 +127,11 @@ class EnrollmentViewModel @Inject constructor(
                     summary = classDetails.name,
                     description = classDetails.unitCode,
                     start = EventDateTime(
-                        dateTime = "$startDate $startTime",
+                        dateTime = "${startDate}T$startTime",
                         timeZone = "Australia/Melbourne"
                     ),
                     end = EventDateTime(
-                        dateTime = "$startDate $endTime",
+                        dateTime = "${startDate}T$endTime",
                         timeZone = "Australia/Melbourne"
                     ),
                     recurrence = recurrenceRules,
