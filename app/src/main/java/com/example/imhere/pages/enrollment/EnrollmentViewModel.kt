@@ -14,6 +14,7 @@ import com.example.imhere.model.service.EventAttendee
 import com.example.imhere.model.service.EventDateTime
 import com.example.imhere.model.service.EventReminders
 import com.example.imhere.model.service.StudentService
+import com.example.imhere.util.RecurrenceUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -104,15 +105,41 @@ class EnrollmentViewModel @Inject constructor(
                     EventAttendee(email = studentId.email)
                 }
 
+                val zone = ZoneId.of("Australia/Melbourne")
+
+                val dateFmt = DateTimeFormatter.ISO_LOCAL_DATE    // "yyyy-MM-dd"
+                val timeFmt = DateTimeFormatter.ISO_LOCAL_TIME    // "HH:mm:ss"
+
+                val startZdt = classDetails.startDateTime.toInstant().atZone(zone)
+                val endZdt   = classDetails.endDateTime.toInstant().atZone(zone)
+
+                val startDate: String = startZdt.toLocalDate().format(dateFmt)
+                val startTime: String = startZdt.toLocalTime().format(timeFmt)
+                val endDate:   String = endZdt.toLocalDate().format(dateFmt)
+                val endTime:   String = endZdt.toLocalTime().format(timeFmt)
+
+                // get the recurrence rule
+
+                val recurrenceRules: List<String>? = RecurrenceUtils.buildRrule(classDetails.recurrence, classDetails.endDateTime)
+
                 // build the calendar event
                 val ev = CalendarEvent(
                     summary = classDetails.name,
                     description = classDetails.unitCode,
-                    start = EventDateTime(classDetails.startDateTime.toIsoString()),
-                    end = EventDateTime(classDetails.endDateTime.toIsoString()),
+                    start = EventDateTime(
+                        dateTime = "$startDate $startTime",
+                        timeZone = "Australia/Melbourne"
+                    ),
+                    end = EventDateTime(
+                        dateTime = "$startDate $endTime",
+                        timeZone = "Australia/Melbourne"
+                    ),
+                    recurrence = recurrenceRules,
                     attendees = attendees,
                     reminders = EventReminders(useDefault = true, overrides = emptyList())
                 )
+
+
 
                 // create event call
                 calendarService.createEvent(ev)

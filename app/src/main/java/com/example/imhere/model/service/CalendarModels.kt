@@ -1,5 +1,6 @@
 package com.example.imhere.model.service
 
+import com.example.imhere.model.ClassSessionRecurrence
 import com.google.gson.annotations.SerializedName
 
 /** The core event send/receive via the Calendar API */
@@ -8,6 +9,7 @@ data class CalendarEvent(
     val description: String? = null,
     val start: EventDateTime,
     val end: EventDateTime,
+    val recurrence: List<String>? = null,
     val attendees: List<EventAttendee>? = null,
     val reminders: EventReminders? = null
 )
