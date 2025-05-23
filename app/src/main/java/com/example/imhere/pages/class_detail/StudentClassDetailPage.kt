@@ -90,7 +90,7 @@ fun StudentClassDetailPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 30.dp)
+            .padding(16.dp)
     ) {
         PageHeader(navController = navController, title = "Class Detail")
         Spacer(modifier = Modifier.height(30.dp))
