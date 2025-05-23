@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import com.example.imhere.ui.components.PageHeader
 
@@ -35,6 +36,10 @@ fun EnrollmentScreen(
     val selectedIds by viewModel.selectedIds.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val success by viewModel.success.collectAsState()
+
+    LaunchedEffect(classSessionId) {
+        viewModel.load(classSessionId)
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()
