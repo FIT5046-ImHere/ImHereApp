@@ -1,12 +1,10 @@
 package com.example.imhere.model.service.module
 
 import android.content.Context
+import android.util.Log
 import com.example.imhere.model.service.CalendarApi
 import com.example.imhere.model.service.CalendarService
 import com.example.imhere.model.service.impl.CalendarServiceImpl
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,8 +14,11 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Named
 import javax.inject.Singleton
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.runBlocking
+
 @Module
 @InstallIn(SingletonComponent::class)
 object CalendarModule {
@@ -26,18 +27,32 @@ object CalendarModule {
     fun provideAuthInterceptor(
         @ApplicationContext ctx: Context
     ): Interceptor = Interceptor { chain ->
+
+//        val acct = GoogleSignIn.getLastSignedInAccount(ctx)
+//            ?: throw IllegalStateException("Not signed in")
+//
+//        // 2. Extract the ID token (make sure you called requestIdToken(...) in your GoogleSignInOptions)
+//        val idToken = acct.idToken
+//            ?: throw IllegalStateException("No ID token available")
+//
+//        // 3. Add it as a Bearer header
+//        val authed = chain.request()
+//            .newBuilder()
+//            .addHeader("Authorization", "Bearer $idToken")
+//            .build()
         // 1. Grab the signed-in account
-        val acct = GoogleSignIn.getLastSignedInAccount(ctx)
-            ?: throw IllegalStateException("Not signed in")
+        val accessToken = runBlocking {
+            FirebaseAuth.getInstance().currentUser
+                ?.getIdToken(/* forceRefresh = */ true)
+                ?.await()
+                ?.token
+        } ?: throw IllegalStateException("No access token available")
 
-        // 2. Extract the ID token (make sure you called requestIdToken(...) in your GoogleSignInOptions)
-        val idToken = acct.idToken
-            ?: throw IllegalStateException("No ID token available")
+        Log.d("Interceptor AcesssTok", accessToken)
 
-        // 3. Add it as a Bearer header
         val authed = chain.request()
             .newBuilder()
-            .addHeader("Authorization", "Bearer $idToken")
+            .addHeader("Authorization", "Bearer $accessToken")
             .build()
 
         chain.proceed(authed)

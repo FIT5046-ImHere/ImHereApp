@@ -1,5 +1,7 @@
 package com.example.imhere.pages.enrollment
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import com.example.imhere.ui.components.PageHeader
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EnrollmentScreen(
     navController: NavHostController,
