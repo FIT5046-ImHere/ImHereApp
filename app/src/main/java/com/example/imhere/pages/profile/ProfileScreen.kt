@@ -72,16 +72,6 @@ fun ProfileScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                Button(
-                    onClick = { /* Placeholder for future Edit Profile functionality */ },
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Edit Profile", fontSize = 16.sp)
-                }
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = {
