@@ -90,5 +90,6 @@ dependencies {
     implementation(libs.zxing.android.embedded)
 
     implementation(libs.play.services.auth)
-
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 }

@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.model.UserProfileType
 import com.example.imhere.ui.components.PageHeader
 import java.text.SimpleDateFormat
 import java.util.*
@@ -126,20 +127,22 @@ fun ClassesScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
-//        PageHeader(navController, title = "Your Classes") {
-//        }
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Your Classes",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Button(onClick = {
-                    navController.navigate("createClass")
-                }) {
-                    Text("+ Create")
+                if(
+                    viewModel.profile?.type == UserProfileType.TEACHER
+                ){
+                    Button(onClick = {
+                        navController.navigate("createClass")
+                    }) {
+                        Text("+ Create")
+                    }
                 }
+
             }
 
         LazyColumn(
