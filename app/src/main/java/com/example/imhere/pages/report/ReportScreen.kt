@@ -1,6 +1,7 @@
 package com.example.imhere.pages.report
 
 import android.app.DatePickerDialog
+import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import android.widget.DatePicker
@@ -27,6 +28,7 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import androidx.core.graphics.toColorInt
 
 
 // Toggle between Pie and Line charts
@@ -41,12 +43,13 @@ fun ReportPage(
     viewModel: ReportViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-
-    LaunchedEffect(Unit) {
-        Log.d("ASS", "ASS")
+    LaunchedEffect(
+        viewModel.startDate,
+        viewModel.endDate,
+        viewModel.selectedSessionId
+    ) {
         viewModel.applyFilters()
     }
-
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -76,13 +79,13 @@ fun ReportPage(
     // Build options: null for all + each session id
     val sessionOptions = listOf<String?>(null) + viewModel.classSessions.map { it.id }
 
-
-//    LaunchedEffect(viewModel.pieEntries) {
-//        Log.d("LaunchedEffectCunt", "CHAAANGEGEEEEs")
-//    }
-
-    val pieDataSet = PieDataSet(viewModel.pieEntries, "Pie Data Set")
-    pieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
+    val pieDataSet = PieDataSet(viewModel.pieEntries, "Pie Data Set").apply {
+        colors = listOf(
+            "#4CAF50".toColorInt(), // Green
+            "#FFEB3B".toColorInt(), // Yellow
+            "#F44336".toColorInt() // Red
+        )
+    }
     val pieData = PieData(pieDataSet)
     pieDataSet.xValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE;
     pieDataSet.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE;
@@ -97,10 +100,7 @@ fun ReportPage(
     val formattedStartDate = viewModel.startDate.format(dateFormatter)
     val formattedEndDate = viewModel.endDate.format(dateFormatter)
 
-
     val lineDataSets by remember { derivedStateOf { viewModel.makeLineDataSets() } }
-
-
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(
@@ -145,10 +145,10 @@ fun ReportPage(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-            Text("Filter") //add onclick
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+//        Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+//            Text("Filter") //add onclick
+//        }
+//        Spacer(modifier = Modifier.height(16.dp))
 
         // Toggle buttons
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -167,8 +167,7 @@ fun ReportPage(
             }
         }
 
-        Spacer(modifier = Modifier.height(36.dp))
-
+        Spacer(modifier = Modifier.height(16.dp))
 
         ExposedDropdownMenuBox(
             expanded = isExpanded,
@@ -238,8 +237,12 @@ fun ReportPage(
                             chart.data = PieData(
                                 PieDataSet(viewModel.pieEntries, "Status")
                                     .apply {
-                                        colors = ColorTemplate.COLORFUL_COLORS.toList()
                                         valueFormatter = PercentFormatter()
+                                        colors = listOf(
+                                            "#4CAF50".toColorInt(), // Green
+                                            "#FFEB3B".toColorInt(), // Yellow
+                                            "#F44336".toColorInt() // Red
+                                        )
                                         valueTextSize = 12f
                                     }
                             )
@@ -261,7 +264,7 @@ fun ReportPage(
                                 xAxis.granularity = 1f
                                 xAxis.setDrawLabels(true)
                                 // initial data
-                                data = LineData(lineDataSets)
+//                                data = LineData(lineDataSets)
                                 xAxis.valueFormatter =
                                     IndexAxisValueFormatter(viewModel.dateLabels)
                             }
@@ -269,12 +272,6 @@ fun ReportPage(
                         update = { chart ->
 
                             chart.data = LineData(lineDataSets)
-                            // 1) Ask ViewModel for filtered data between startDate and endDate
-//                            val filteredDataSets = viewModel.getLineDataSetsBetween(startDate, endDate)
-//                            val dateLabels       = viewModel.getDateLabelsBetween(startDate, endDate)
-
-                            // 2) Apply it to the chart
-//                            chart.data = LineData(filteredDataSets)
                             chart.xAxis.valueFormatter =
                                 IndexAxisValueFormatter(viewModel.dateLabels)
 
@@ -288,4 +285,3 @@ fun ReportPage(
 
     }
 }
-
