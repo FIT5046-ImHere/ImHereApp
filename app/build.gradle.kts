@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     //scan QR code

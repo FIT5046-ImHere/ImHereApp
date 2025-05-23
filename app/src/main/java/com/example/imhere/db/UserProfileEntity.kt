@@ -3,11 +3,12 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.imhere.db.DateConverter
 import com.example.imhere.db.UserProfileTypeConverter
+import com.example.imhere.model.UserProfileType
 import java.util.Date
 
 @Entity
 @TypeConverters(UserProfileTypeConverter::class, DateConverter::class)
-data class UserProfile(
+data class UserProfileEntity(
     @PrimaryKey
     val uid: String = "",
 
@@ -17,14 +18,4 @@ data class UserProfile(
     val birthDate: Date = Date()
 )
 
-enum class UserProfileType(val value: String) {
-    STUDENT("student"),
-    TEACHER("teacher");
 
-    companion object {
-        fun fromValue(value: String): UserProfileType {
-            return entries.firstOrNull { it.value == value }
-                ?: STUDENT
-        }
-    }
-}
