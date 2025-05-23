@@ -1,16 +1,15 @@
 package com.example.imhere.pages.class_detail
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.model.AttendanceStatus
+import com.example.imhere.model.ClassSession
 import com.example.imhere.model.service.AccountService
 import com.example.imhere.model.service.AttendanceService
 import com.example.imhere.model.service.ClassSessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -23,12 +22,29 @@ class StudentClassDetailViewModel @Inject constructor(
     private val classSessionService: ClassSessionService,
 ) : ViewModel() {
     private val currentUserId = accountService.currentUserId
-    var hasRecorded by mutableStateOf(false)
+    val attendanceStatus = MutableStateFlow<AttendanceStatus?>(null)
+    val hasRecorded = MutableStateFlow(false)
+    val isLoading = MutableStateFlow(true)
+    val classSession = MutableStateFlow<ClassSession?>(null)
 
-    fun loadAttendance(classSessionId: String) {
+
+    fun loadClassSessionAndAttendance(classSessionId: String) {
         viewModelScope.launch {
-            val currentAttendances = attendanceService.getCurrentAttendances(classSessionId)
-            hasRecorded = currentAttendances.any { ca -> ca.studentId == currentUserId }
+            isLoading.value = true
+            try {
+                val session = classSessionService.getClassById(classSessionId)
+                classSession.value = session
+
+                val attendances = attendanceService.getCurrentAttendances(classSessionId)
+                val record = attendances.find { it.studentId == accountService.currentUserId }
+
+                attendanceStatus.value = record?.status
+                hasRecorded.value = record != null
+            } catch (e: Exception) {
+                Log.e("StudentVM", "Error loading class or attendance", e)
+            } finally {
+                isLoading.value = false
+            }
         }
     }
 
@@ -38,7 +54,6 @@ class StudentClassDetailViewModel @Inject constructor(
         onSuccess: (AttendanceStatus) -> Unit,
         onError: (String?) -> Unit
     ) {
-        Log.d("MARKING ATT", "MARKING ATT")
         viewModelScope.launch {
             try {
                 val passwordValid = attendanceService.checkAttendancePassword(classSessionId, password)
@@ -54,8 +69,13 @@ class StudentClassDetailViewModel @Inject constructor(
                 }
 
                 val now = Date()
-                val sessionTime = session.startDateTime
 
+                if (now.after(session.endDateTime)) {
+                    onError("Class has ended. Attendance is closed.")
+                    return@launch
+                }
+
+                val sessionTime = session.startDateTime
                 // Extract only time from session.startDateTime and set to today
                 val calendarNow = java.util.Calendar.getInstance()
                 val calendarSession = java.util.Calendar.getInstance().apply {
@@ -78,7 +98,10 @@ class StudentClassDetailViewModel @Inject constructor(
                     teacherId = currentUserId
                 )
 
+                attendanceStatus.value = status
+                hasRecorded.value = true
                 onSuccess(status)
+
             } catch (e: Exception) {
                 onError(e.message)
             }
