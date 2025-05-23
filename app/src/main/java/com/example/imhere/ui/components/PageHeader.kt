@@ -32,7 +32,7 @@ fun PageHeader(
         } else if (title != null) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold
             )
         }
