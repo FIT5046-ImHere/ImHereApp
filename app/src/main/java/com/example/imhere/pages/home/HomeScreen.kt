@@ -16,9 +16,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.imhere.R
+import com.example.imhere.model.service.AccountService
+import com.example.imhere.pages.classes.ClassCard
+import com.example.imhere.pages.classes.ClassesViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -36,7 +40,11 @@ enum class Recurrence {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
+fun HomePage(
+     modifier: Modifier = Modifier,
+     navController: NavHostController,
+     viewModel: ClassesViewModel = hiltViewModel()
+) {
      LazyColumn(
           modifier = modifier
                .fillMaxSize()
@@ -55,7 +63,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
           }
           item {
                Text(
-                    text = "Welcome Josh!",
+                    text = "Welcome ${viewModel.profile?.name}!",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -69,27 +77,15 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
                     modifier = Modifier.padding(bottom = 16.dp)
                )
           }
-          val classes = listOf(
-               Class(
-                    name = "Mathematics 101",
-                    startDateTime = LocalDateTime.now().plusHours(2),
-                    endDateTime = LocalDateTime.now().plusHours(3),
-                    recurrence = Recurrence.WEEKLY,
-                    location = "Room A-101"
-               ),
-               Class(
-                    name = "Physics 202",
-                    startDateTime = LocalDateTime.now().plusDays(1).plusHours(1),
-                    endDateTime = LocalDateTime.now().plusDays(1).plusHours(2),
-                    recurrence = Recurrence.DAILY,
-                    location = "Lab B-204"
-               )
-          )
-          items(classes) { classItem ->
-               NextClassCard(
+          val upcoming = viewModel.classSessions
+               .sortedBy { it.startDateTime }
+               .take(2)
+
+          items(upcoming) { classItem ->
+               ClassCard(
                     classItem = classItem,
                     onClick = {
-                         navController.navigate("classes/2TCEkYHevGiH2Ij1pa11")
+                         navController.navigate("classes/${classItem.id}")
                     }
                )
           }
@@ -111,8 +107,7 @@ fun NextClassCard(
                     if (onClick != null) {
                          onClick()
                     }
-               }
-          ,
+               },
           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
      ) {
