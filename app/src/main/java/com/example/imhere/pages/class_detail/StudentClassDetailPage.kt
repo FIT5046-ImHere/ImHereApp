@@ -61,8 +61,6 @@ fun StudentClassDetailPage(
     val zoneId = ZoneId.systemDefault()
     val startDateTime = classSession!!.startDateTime.toInstant().atZone(zoneId).toLocalDateTime()
     val endDateTime = classSession!!.endDateTime.toInstant().atZone(zoneId).toLocalDateTime()
-    val scanWindowStart = startDateTime.minusMinutes(10)
-    val scanWindowEnd = endDateTime
 
     val context = LocalContext.current
     val activity = remember(context) { context as Activity }
@@ -88,8 +86,6 @@ fun StudentClassDetailPage(
             }
         }
     }
-
-    val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(scanWindowEnd)
 
     Column(
         modifier = Modifier
@@ -137,26 +133,6 @@ fun StudentClassDetailPage(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        val remainingTimeText = when {
-            now.value.isBefore(scanWindowStart) -> {
-                val duration = Duration.between(now.value, scanWindowStart)
-                val totalSeconds = duration.seconds
-                val minutes = totalSeconds / 60
-                val seconds = totalSeconds % 60
-                "Scan opens in: $minutes min $seconds sec"
-            }
-
-            canScan -> {
-                val duration = Duration.between(now.value, scanWindowEnd)
-                val totalSeconds = duration.seconds
-                val minutes = totalSeconds / 60
-                val seconds = totalSeconds % 60
-                "Scan closes in: $minutes min $seconds sec"
-            }
-
-            else -> null
-        }
-
         Button(
             onClick = {
                 val integrator = IntentIntegrator(activity).apply {
@@ -168,10 +144,10 @@ fun StudentClassDetailPage(
                 }
                 qrLauncher.launch(integrator.createScanIntent())
             },
-            enabled = canScan && attendanceStatus == null,
+            enabled = attendanceStatus == null,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (canScan) MaterialTheme.colorScheme.primary else Color.LightGray
+                containerColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Text("Scan QR Code")
@@ -181,9 +157,13 @@ fun StudentClassDetailPage(
 
         when {
             attendanceStatus != null -> Text("Attendance submitted: ✅ ${attendanceStatus!!.name.lowercase().replaceFirstChar { it.titlecase() }}", style = MaterialTheme.typography.bodySmall, color = Color(0xFF2E7D32))
-            remainingTimeText != null -> Text(remainingTimeText, style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
-            now.value.isAfter(scanWindowEnd) -> Text("The scan window has expired.", style = MaterialTheme.typography.bodySmall, color = Color.Red)
-            else -> Text("You can scan 10 minutes before the class.", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            else -> Text(
+                text = "Please scan the QR code",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
         }
 
         scannedResult?.let {
