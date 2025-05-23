@@ -98,7 +98,11 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavHostController) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NextClassCard(classItem: Class, modifier: Modifier = Modifier, onClick: (() -> Unit) = {}) {
+fun NextClassCard(
+     classItem: Class,
+     modifier: Modifier = Modifier,
+     onClick: (() -> Unit) = {}
+) {
      Card(
           modifier = modifier
                .fillMaxWidth()

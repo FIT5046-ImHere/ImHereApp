@@ -1,5 +1,6 @@
 package com.example.imhere.pages.classes
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -157,7 +158,12 @@ fun ClassesScreen(
                     )
                 }
                 items(classes) { classItem ->
-                    ClassCard(classItem = classItem)
+                    ClassCard(
+                        classItem = classItem,
+                        onClick = {
+                            navController.navigate("classes/${classItem.id}")
+                        }
+                        )
                 }
             }
 
@@ -176,7 +182,11 @@ fun ClassesScreen(
 }
 
 @Composable
-fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
+fun ClassCard(
+    classItem: ClassSession,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit) = {}
+) {
     val professorName = when (classItem.teacherId) {
         "teacher1" -> "Venessa Fring"
         "teacher2" -> "Michael Carter"
@@ -189,7 +199,13 @@ fun ClassCard(classItem: ClassSession, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable {
+                if (onClick != null) {
+                    onClick()
+                }
+            }
+        ,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
