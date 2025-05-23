@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.imhere.model.AttendanceStatus
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
 import com.example.imhere.ui.components.BackButton
@@ -45,8 +46,15 @@ fun StudentClassDetailPage(
     navController: NavHostController
 ) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
-    var attendanceStatus by remember { mutableStateOf<String?>(null) }
+    var attendanceStatus by remember { mutableStateOf<AttendanceStatus>(AttendanceStatus.ABSENT) }
     var scannedResult by remember { mutableStateOf<String?>(null) }
+    var hasRecorded = viewModel.hasRecorded
+
+    LaunchedEffect(classSessionId) {
+        if (classSessionId != null) {
+            viewModel.loadAttendance(classSessionId)
+        }
+    }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -64,168 +72,170 @@ fun StudentClassDetailPage(
     val scanWindowStart = remember(startDateTime) { startDateTime.minusMinutes(10) }
     val scanWindowEnd = remember(endDateTime) { endDateTime }
 
-//    val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(endDateTime)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp, vertical = 30.dp),
+    ) {
 
+        // --- Header ---
+        PageHeader(navController = navController, title = "Class Detail")
+        Spacer(modifier = Modifier.height(30.dp))
+
+        Text(
+            text = "Class Name:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+        )
+        // --- Class Name ---
+        Text(
+            text = classInfo.name,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(30.dp))
+        // --- Location ---
+        Text(
+            text = "Location:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+
+        )
+        Text(
+            text = classInfo.location,
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+        )
+        Spacer(modifier = Modifier.height(30.dp))
+        // --- Time Row ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = "Start Time:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
+
+                )
+                Text(
+                    text = startDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+                )
+            }
+            Column {
+                Text(
+                    text = "End Time:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
+
+                )
+                Text(
+                    text = endDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(30.dp))
+        // --- Recurrence ---
+        Text(
+            text = "Recurrence:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+
+        )
+        Text(
+            text = classInfo.recurrence.name.lowercase().replaceFirstChar { it.titlecase() },
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+        )
+        Spacer(modifier = Modifier.height(30.dp))
+        // --- Attendance Info ---
+        Text(
+            text = "Attendance Status:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+
+        )
+        Text(
+            text = attendanceStatus.name ?: "Not submitted",
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+            color = when (attendanceStatus.value.lowercase()) {
+                "present" -> Color(0xFF2E7D32)
+                "late" -> Color(0xFFFF9800)
+                "absent" -> Color.Red
+                else -> Color.Gray
+            }
+        )
+        Spacer(modifier = Modifier.height(50.dp))
+
+        // --- QR Scan Section with Countdown + ZXing Scanner ---
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 30.dp),
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val context = LocalContext.current
+            val activity = remember(context) { context as Activity }
 
-            // --- Header ---
-            PageHeader(navController = navController, title = "Class Detail")
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Text(
-                text = "Class Name:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = Color.DarkGray
-            )
-            // --- Class Name ---
-            Text(
-                text = classInfo.name,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            // --- Location ---
-            Text(
-                text = "Location:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = Color.DarkGray
-
-            )
-            Text(
-                text = classInfo.location,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            // --- Time Row ---
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Start Time:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.DarkGray
-
-                    )
-                    Text(
-                        text = startDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
-                    )
-                }
-                Column {
-                    Text(
-                        text = "End Time:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.DarkGray
-
-                    )
-                    Text(
-                        text = endDateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(30.dp))
-            // --- Recurrence ---
-            Text(
-                text = "Recurrence:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = Color.DarkGray
-
-            )
-            Text(
-                text = classInfo.recurrence.name.lowercase().replaceFirstChar { it.titlecase() },
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            // --- Attendance Info ---
-            Text(
-                text = "Attendance Status:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = Color.DarkGray
-
-            )
-            Text(
-                text = attendanceStatus ?: "Not submitted",
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
-                color = when (attendanceStatus?.lowercase()) {
-                    "present" -> Color(0xFF2E7D32)
-                    "late" -> Color(0xFFFF9800)
-                    "absent" -> Color.Red
-                    else -> Color.Gray
-                }
-            )
-            Spacer(modifier = Modifier.height(50.dp))
-
-            // --- QR Scan Section with Countdown + ZXing Scanner ---
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val context = LocalContext.current
-                val activity = remember(context) { context as Activity }
-
-                var scannedResult by remember { mutableStateOf<String?>(null) }
-
-                var attendanceStatus by remember { mutableStateOf<String?>(null) }
-
-                val qrLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-                ) { result ->
-                    if (result.resultCode == Activity.RESULT_OK) {
-                        val contents = result.data?.getStringExtra("SCAN_RESULT")
-                        contents?.let { scannedClassId ->
-                            markAttendance(
-                                classId = scannedClassId,
-                                onSuccess = {
-                                    scannedResult = scannedClassId
-                                    attendanceStatus = "Present"
+            val qrLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val contents = result.data?.getStringExtra("SCAN_RESULT")
+                    contents?.let { scannedClassPassword ->
+                        if (classSessionId != null) {
+                            viewModel.markAttendance(
+                                classSessionId = classSessionId,
+                                password = scannedClassPassword,
+                                onSuccess = { status ->
+                                    scannedResult = scannedClassPassword
+                                    attendanceStatus = status
                                 },
                                 onError = { errorMsg ->
-                                    Toast.makeText(context, "Failed: $errorMsg", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Failed: $errorMsg", Toast.LENGTH_LONG)
+                                        .show()
                                 }
                             )
                         }
                     }
+
+                }
+            }
+
+
+            val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(scanWindowEnd)
+            val isTooEarly = now.value.isBefore(scanWindowStart)
+            val isTooLate = now.value.isAfter(scanWindowEnd)
+
+
+            val remainingTimeText = when {
+                now.value.isBefore(scanWindowStart) -> {
+                    val duration = Duration.between(now.value, scanWindowStart)
+                    val totalSeconds = duration.seconds
+                    val minutes = totalSeconds / 60
+                    val seconds = totalSeconds % 60
+                    "Scan opens in: ${minutes} min ${seconds} sec"
                 }
 
-
-                val canScan = now.value.isAfter(scanWindowStart) && now.value.isBefore(scanWindowEnd)
-                val isTooEarly = now.value.isBefore(scanWindowStart)
-                val isTooLate = now.value.isAfter(scanWindowEnd)
-
-
-                val remainingTimeText = when {
-                    now.value.isBefore(scanWindowStart) -> {
-                        val duration = Duration.between(now.value, scanWindowStart)
-                        val totalSeconds = duration.seconds
-                        val minutes = totalSeconds / 60
-                        val seconds = totalSeconds % 60
-                        "Scan opens in: ${minutes} min ${seconds} sec"
-                    }
-                    canScan -> {
-                        val duration = Duration.between(now.value, scanWindowEnd)
-                        val totalSeconds = duration.seconds
-                        val minutes = totalSeconds / 60
-                        val seconds = totalSeconds % 60
-                        "Scan closes in: ${minutes} min ${seconds} sec"
-                    }
-                    else -> null
+                canScan -> {
+                    val duration = Duration.between(now.value, scanWindowEnd)
+                    val totalSeconds = duration.seconds
+                    val minutes = totalSeconds / 60
+                    val seconds = totalSeconds % 60
+                    "Scan closes in: ${minutes} min ${seconds} sec"
                 }
-                // --- Scan Button ---
+
+                else -> null
+            }
+            // --- Scan Button ---
+            if (!hasRecorded) {
                 Button(
                     onClick = {
                         val integrator = IntentIntegrator(activity).apply {
@@ -233,11 +243,12 @@ fun StudentClassDetailPage(
                             setPrompt("Scan QR Code")
                             setBeepEnabled(true)
                             setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                            captureActivity = CaptureActivity::class.java
+                            captureActivity = CustomScannerActivity::class.java //
                         }
                         qrLauncher.launch(integrator.createScanIntent())
+
                     },
-                    enabled = canScan && attendanceStatus == null,
+//                    enabled = canScan && attendanceStatus == null,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (canScan) MaterialTheme.colorScheme.primary else Color.LightGray
@@ -245,67 +256,71 @@ fun StudentClassDetailPage(
                 ) {
                     Text("Scan QR Code")
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // --- Status Text ---
-                when {
-                    attendanceStatus != null -> Text(
-                        "Attendance submitted: ✅ $attendanceStatus",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF2E7D32)
-                    )
-                    remainingTimeText != null -> Text(
-                        remainingTimeText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (canScan) Color.DarkGray else Color.Gray
-                    )
-                    isTooLate -> Text(
-                        "The scan window has expired.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Red
-                    )
-                    else -> Text(
-                        "You can scan 10 minutes before the class.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-                }
-
-                // --- Debug Output ---
-                scannedResult?.let {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Scanned QR Code: $it", color = Color.Blue)
-                }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // --- Status Text ---
+            when {
+                true -> Text(
+                    "Attendance submitted: ✅ $attendanceStatus",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF2E7D32)
+                )
+
+                remainingTimeText != null -> Text(
+                    remainingTimeText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (canScan) Color.DarkGray else Color.Gray
+                )
+
+                isTooLate -> Text(
+                    "The scan window has expired.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red
+                )
+
+                else -> Text(
+                    "You can scan 10 minutes before the class.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+
+            // --- Debug Output ---
+            scannedResult?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Scanned QR Code: $it", color = Color.Blue)
+            }
         }
-}
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-    val user = FirebaseAuth.getInstance().currentUser
-    val db = FirebaseFirestore.getInstance()
-
-    if (user != null) {
-        val userId = user.uid
-        val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-
-        val attendance = hashMapOf(
-            "userId" to userId,
-            "classId" to classId,
-            "date" to today,
-            "status" to "present"
-        )
-
-        db.collection("attendances")
-            .add(attendance)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onError(e.localizedMessage ?: "Error saving attendance") }
-    } else {
-        onError("User not logged in.")
     }
 }
+
+//@RequiresApi(Build.VERSION_CODES.O)
+//fun markAttendance(classId: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+//    val user = FirebaseAuth.getInstance().currentUser
+//    val db = FirebaseFirestore.getInstance()
+//
+//    if (user != null) {
+//        val userId = user.uid
+//        val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+//
+//        val attendance = hashMapOf(
+//            "userId" to userId,
+//            "classId" to classId,
+//            "date" to today,
+//            "status" to "present"
+//        )
+//
+//        db.collection("attendances")
+//            .add(attendance)
+//            .addOnSuccessListener { onSuccess() }
+//            .addOnFailureListener { e -> onError(e.localizedMessage ?: "Error saving attendance") }
+//    } else {
+//        onError("User not logged in.")
+//    }
+//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.ui.components.PageHeader
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -106,44 +107,56 @@ fun ClassesScreen(navController: NavHostController) {
         }
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.Start
+            .padding(16.dp)
     ) {
-        item {
-            Text(
-                text = "Schedules",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
-            )
-        }
 
-        grouped.forEach { (header, classes) ->
-            item {
+//        PageHeader(navController, title = "Your Classes") {
+//        }
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = header,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(vertical = 12.dp)
+                    text = "Your Classes",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
                 )
+                Button(onClick = {
+                    navController.navigate("createClass")
+                }) {
+                    Text("+ Create")
+                }
             }
-            items(classes) { classItem ->
-                ClassCard(classItem = classItem)
-            }
-        }
 
-        if (classInstances.isEmpty()) {
-            item {
-                Text(
-                    text = "No upcoming classes",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
+        ) {
+            grouped.forEach { (header, classes) ->
+                item {
+                    Text(
+                        text = header,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
+                }
+                items(classes) { classItem ->
+                    ClassCard(classItem = classItem)
+                }
+            }
+
+            if (classInstances.isEmpty()) {
+                item {
+                    Text(
+                        text = "No upcoming classes",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
             }
         }
     }

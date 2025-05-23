@@ -90,7 +90,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel(), navController
                 if (bDate != null) {
                     viewModel.register(
                         email = email,
-                        type = selectedType.name.uppercase(),
+                        type = selectedType.name.lowercase(),
                         password = password,
                         name = name,
                         birthDate = bDate

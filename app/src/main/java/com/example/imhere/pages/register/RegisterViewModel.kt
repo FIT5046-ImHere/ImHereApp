@@ -42,7 +42,7 @@ class RegisterViewModel @Inject constructor(
                     uid,
                     name,
                     email,
-                    type = UserProfileType.valueOf(type),
+                    type = UserProfileType.fromValue(type),
                     birthDate
                 ))
 
