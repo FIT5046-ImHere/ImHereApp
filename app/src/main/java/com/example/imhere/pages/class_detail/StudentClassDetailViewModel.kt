@@ -54,7 +54,6 @@ class StudentClassDetailViewModel @Inject constructor(
         onSuccess: (AttendanceStatus) -> Unit,
         onError: (String?) -> Unit
     ) {
-        Log.d("MARKING ATT", "MARKING ATT")
         viewModelScope.launch {
             try {
                 val passwordValid = attendanceService.checkAttendancePassword(classSessionId, password)
@@ -70,8 +69,13 @@ class StudentClassDetailViewModel @Inject constructor(
                 }
 
                 val now = Date()
-                val sessionTime = session.startDateTime
 
+                if (now.after(session.endDateTime)) {
+                    onError("Class has ended. Attendance is closed.")
+                    return@launch
+                }
+
+                val sessionTime = session.startDateTime
                 // Extract only time from session.startDateTime and set to today
                 val calendarNow = java.util.Calendar.getInstance()
                 val calendarSession = java.util.Calendar.getInstance().apply {
@@ -94,7 +98,10 @@ class StudentClassDetailViewModel @Inject constructor(
                     teacherId = currentUserId
                 )
 
+                attendanceStatus.value = status
+                hasRecorded.value = true
                 onSuccess(status)
+
             } catch (e: Exception) {
                 onError(e.message)
             }
