@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.imhere.model.ClassSession
 import com.example.imhere.model.ClassSessionRecurrence
+import com.example.imhere.model.service.AccountService
 import com.example.imhere.model.service.ClassSessionService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ClassCreationViewModel @Inject constructor(
-    private val classSessionService: ClassSessionService
+    private val classSessionService: ClassSessionService,
+    private val accountService: AccountService,
 ) : ViewModel() {
     val classSessions = MutableStateFlow<List<ClassSession>>(emptyList())
     init {
@@ -65,6 +67,7 @@ class ClassCreationViewModel @Inject constructor(
                     name = name,
                     location = location,
                     unitCode = unitCode,
+                    teacherId = accountService.currentUserId,
                     recurrence = ClassSessionRecurrence.valueOf(recurrence),
                     startDateTime = startDateTime,
                     endDateTime = endDateTime

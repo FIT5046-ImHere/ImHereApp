@@ -25,6 +25,7 @@ import com.example.imhere.pages.classes.ClassCard
 import com.example.imhere.pages.classes.ClassesViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 data class Class(
     val name: String,
@@ -77,7 +78,9 @@ fun HomePage(
                     modifier = Modifier.padding(bottom = 16.dp)
                )
           }
+          val now = Date()
           val upcoming = viewModel.classSessions
+               .filter { it.startDateTime.after(now) }
                .sortedBy { it.startDateTime }
                .take(2)
 
@@ -87,64 +90,6 @@ fun HomePage(
                     onClick = {
                          navController.navigate("classes/${classItem.id}")
                     }
-               )
-          }
-     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun NextClassCard(
-     classItem: Class,
-     modifier: Modifier = Modifier,
-     onClick: (() -> Unit) = {}
-) {
-     Card(
-          modifier = modifier
-               .fillMaxWidth()
-               .padding(vertical = 4.dp)
-               .clickable {
-                    if (onClick != null) {
-                         onClick()
-                    }
-               },
-          elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-     ) {
-          Column(
-               modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-               verticalArrangement = Arrangement.spacedBy(8.dp)
-          ) {
-               Text(
-                    text = classItem.name,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-               )
-               Text(
-                    text = "Time: ${
-                         classItem.startDateTime.format(
-                              DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm")
-                         )
-                    } - ${
-                         classItem.endDateTime.format(
-                              DateTimeFormatter.ofPattern("HH:mm")
-                         )
-                    }",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-               )
-               Text(
-                    text = "Location: ${classItem.location}",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-               )
-               Text(
-                    text = "Recurrence: ${classItem.recurrence.name.lowercase().replaceFirstChar { it.titlecase() }}",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
                )
           }
      }
